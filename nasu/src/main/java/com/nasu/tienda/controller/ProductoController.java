@@ -51,6 +51,23 @@ public class ProductoController {
         return "/producto/listado";
     }
 
+    @GetMapping("/categoria/{idCategoria}")
+    public String categoria(@PathVariable("idCategoria") Integer idCategoria, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Categoria> categoriaOpt = categoriaService.getCategoria(idCategoria);
+        if (categoriaOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", messageSource.getMessage("categoria.error01", null, Locale.getDefault()));
+            return "redirect:/producto/listado";
+        }
+        model.addAttribute("categoriaActual", categoriaOpt.get());
+        model.addAttribute("idCategoriaActual", idCategoria);
+        var productos = productoService.getProductosPorCategoria(idCategoria);
+        model.addAttribute("productos", productos);
+        model.addAttribute("totalProductos", productos.size());
+        var categorias = categoriaService.getCategorias(true);
+        model.addAttribute("categorias", categorias);
+        return "/producto/listado";
+    }
+
     @GetMapping("/detalle/{idProducto}")
     public String detalle(@PathVariable("idProducto") Integer idProducto, Model model, RedirectAttributes redirectAttributes) {
         Optional<Producto> productoOpt = productoService.getProducto(idProducto);

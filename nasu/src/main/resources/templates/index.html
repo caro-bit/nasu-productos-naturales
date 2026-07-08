@@ -21,7 +21,7 @@
             <h2 class="text-center mb-4">[[#{index.categorias}]]</h2>
             <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-3">
                 <div th:each="c : ${categorias}" class="col">
-                    <a th:href="@{/producto/listado}" class="text-decoration-none">
+                    <a th:href="@{/producto/categoria/{id}(id=${c.idCategoria})}" class="text-decoration-none">
                         <div class="card card-producto text-center h-100">
                             <div class="card-body">
                                 <div th:switch="${c.descripcion}" class="text-nasu fs-1 mb-2">
@@ -45,7 +45,7 @@
         <!-- Productos destacados -->
         <section class="pb-4">
             <h2 class="text-center">[[#{index.destacados}]]</h2>
-            <div th:if="${destacados != null and !destacados.empty}">
+            <div th:if="${destacados != null and !destacados.empty}" class="container">
                 <section th:replace="~{producto/fragmentos :: tarjetas(${destacados})}"/>
             </div>
         </section>

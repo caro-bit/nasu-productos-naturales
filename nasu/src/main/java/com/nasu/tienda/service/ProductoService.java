@@ -40,4 +40,9 @@ public class ProductoService {
         return productoRepository.findByDescripcionContainingIgnoreCaseAndActivoTrue(descripcion);
     }
 
+    @Transactional(readOnly = true)
+    public List<Producto> getProductosPorCategoria(Integer idCategoria) {
+        return productoRepository.findByIdCategoriaAndActivoTrue(idCategoria);
+    }
+
 }

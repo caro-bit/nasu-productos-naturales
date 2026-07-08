@@ -16,4 +16,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Integer> {
     //Consulta derivada para buscar productos activos por nombre
     public List<Producto> findByDescripcionContainingIgnoreCaseAndActivoTrue(String descripcion);
 
+    //Consulta derivada para filtrar productos activos por categoría
+    public List<Producto> findByIdCategoriaAndActivoTrue(Integer idCategoria);
+
 }
