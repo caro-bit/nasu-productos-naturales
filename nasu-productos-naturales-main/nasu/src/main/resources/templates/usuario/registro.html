@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head}"/>
+    <body>
+        <header th:replace="~{general/fragmentos :: header}"/>
+
+        <section class="container pt-4">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm card-producto">
+                        <div class="card-header bg-nasu text-white text-center">
+                            <h3 class="mb-0"><i class="fa-solid fa-user-plus"></i> [[#{usuario.registro.titulo}]]</h3>
+                        </div>
+                        <div class="card-body bg-white">
+                            <p class="text-muted text-center">[[#{usuario.registro.texto}]]</p>
+
+                            <!-- HU-01: formulario de registro de clientes -->
+                            <form method="post" th:action="@{/registro/guardar}" th:object="${usuario}">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">[[#{usuario.nombre}]]</label>
+                                        <input type="text" th:field="*{nombre}" class="form-control" required/>
+                                        <small class="text-danger" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">[[#{usuario.apellidos}]]</label>
+                                        <input type="text" th:field="*{apellidos}" class="form-control" required/>
+                                        <small class="text-danger" th:if="${#fields.hasErrors('apellidos')}" th:errors="*{apellidos}"></small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">[[#{usuario.username}]]</label>
+                                        <input type="text" th:field="*{username}" class="form-control" required/>
+                                        <small class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">[[#{usuario.correo}]]</label>
+                                        <input type="email" th:field="*{correo}" class="form-control" required/>
+                                        <small class="text-danger" th:if="${#fields.hasErrors('correo')}" th:errors="*{correo}"></small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">[[#{usuario.telefono}]]</label>
+                                        <input type="text" th:field="*{telefono}" class="form-control"/>
+                                        <small class="text-danger" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">[[#{usuario.password}]]</label>
+                                        <input type="password" th:field="*{password}" class="form-control" required/>
+                                        <small class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">[[#{usuario.confirmarPassword}]]</label>
+                                        <input type="password" th:field="*{confirmarPassword}" class="form-control" required/>
+                                        <small class="text-danger" th:if="${#fields.hasErrors('confirmarPassword')}" th:errors="*{confirmarPassword}"></small>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                    <a th:href="@{/login}" class="btn btn-outline-nasu">[[#{usuario.yaCuenta}]]</a>
+                                    <button type="submit" class="btn btn-nasu">
+                                        <i class="fa-solid fa-seedling"></i> [[#{usuario.crearCuenta}]]</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section th:replace="~{general/fragmentos :: mostrarToast}"/>
+        <footer th:replace="~{general/fragmentos :: footer}"/>
+    </body>
+</html>
