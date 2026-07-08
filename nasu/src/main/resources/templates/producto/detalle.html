@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head}"/>
+    <body>
+        <header th:replace="~{general/fragmentos :: header}"/>
+
+        <section class="container pt-4">
+            <!-- Ruta de navegación (miga de pan) -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a th:href="@{/}">[[#{plantilla.inicio}]]</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/producto/listado}">[[#{plantilla.catalogo}]]</a></li>
+                    <li class="breadcrumb-item" th:if="${categoria != null}">[[${categoria.descripcion}]]</li>
+                    <li class="breadcrumb-item active" aria-current="page">[[${producto.descripcion}]]</li>
+                </ol>
+            </nav>
+
+            <div class="row g-4">
+                <!-- Imagen del producto -->
+                <div class="col-md-5">
+                    <div class="card d-flex justify-content-center align-items-center p-3" style="min-height: 320px;">
+                        <img th:src="${producto.rutaImagen != null ? producto.rutaImagen : '/img/producto-default.svg'}"
+                             class="img-fluid" th:alt="${producto.descripcion}"
+                             style="max-height: 300px; object-fit: contain;"/>
+                    </div>
+                </div>
+                <!-- Información del producto -->
+                <div class="col-md-7">
+                    <h2>[[${producto.descripcion}]]</h2>
+                    <p th:if="${categoria != null}"><span class="badge bg-nasu">[[${categoria.descripcion}]]</span></p>
+                    <div class="d-flex align-items-center gap-3">
+                        <h3 class="text-nasu fw-bold mb-0" th:text="${#numbers.formatCurrency(producto.precio)}">₡0</h3>
+                        <span th:if="${producto.existencias > 0}" class="badge text-bg-success"
+                              th:text="${producto.existencias} + ' ' + #{producto.unidades}"></span>
+                        <span th:unless="${producto.existencias > 0}" class="badge text-bg-danger">[[#{producto.agotado}]]</span>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header bg-white"><h5 class="mb-0">[[#{producto.descripcion}]]</h5></div>
+                        <div class="card-body">
+                            <p class="mb-0">[[${producto.detalle}]]</p>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3" th:if="${producto.ingredientes != null}">
+                        <div class="card-header bg-white"><h5 class="mb-0">[[#{producto.ingredientes}]]</h5></div>
+                        <div class="card-body">
+                            <ul class="mb-0">
+                                <li th:each="ingrediente : ${#strings.arraySplit(producto.ingredientes, ',')}">
+                                    [[${#strings.trim(ingrediente)}]]</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <a th:href="@{/producto/listado}" class="btn btn-nasu mt-4">
+                        <i class="fa-solid fa-arrow-left"></i> [[#{accion.regresar}]]</a>
+                </div>
+            </div>
+        </section>
+
+        <footer th:replace="~{general/fragmentos :: footer}"/>
+    </body>
+</html>

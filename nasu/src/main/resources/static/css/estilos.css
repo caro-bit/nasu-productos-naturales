@@ -1,0 +1,70 @@
+/* Estilos personalizados de NaSü Productos Naturales */
+/* Paleta natural del prototipo: verdes, crema y tonos tierra */
+:root {
+    --nasu-verde: #4e6b54;
+    --nasu-verde-oscuro: #3a5240;
+    --nasu-crema: #faf7f0;
+    --nasu-arena: #ede5d3;
+    --nasu-terracota: #c47a54;
+}
+
+body {
+    background-color: var(--nasu-crema);
+}
+
+/* Barra de navegación */
+.navbar-nasu {
+    background-color: #fffdf8;
+    border-bottom: 1px solid var(--nasu-arena);
+}
+
+.navbar-nasu .navbar-brand {
+    color: var(--nasu-verde-oscuro);
+    font-weight: 700;
+    letter-spacing: 3px;
+}
+
+/* Sección de portada (hero) */
+.hero-nasu {
+    background: linear-gradient(135deg, var(--nasu-verde) 0%, var(--nasu-verde-oscuro) 100%);
+}
+
+/* Colores de marca reutilizables junto con Bootstrap */
+.bg-nasu {
+    background-color: var(--nasu-verde);
+}
+
+.text-nasu {
+    color: var(--nasu-verde);
+}
+
+.btn-nasu {
+    background-color: var(--nasu-verde);
+    color: #fff;
+}
+
+.btn-nasu:hover {
+    background-color: var(--nasu-verde-oscuro);
+    color: #fff;
+}
+
+/* Tarjetas de producto y categoría */
+.card-producto {
+    transition: transform .2s ease-in-out, box-shadow .2s ease-in-out;
+}
+
+.card-producto:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
+}
+
+/* Elemento activo del filtro de categorías */
+.list-group-item.active {
+    background-color: var(--nasu-verde);
+    border-color: var(--nasu-verde);
+}
+
+/* Pie de página */
+.footer-nasu {
+    background-color: var(--nasu-verde-oscuro);
+}

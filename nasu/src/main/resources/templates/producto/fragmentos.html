@@ -1,0 +1,48 @@
+<!-- fragmento 1 para el listado de tarjetas de productos, recibe la lista a desplegar -->
+<section th:fragment="tarjetas(lista)" class="py-2">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
+        <div th:each="p : ${lista}" class="col">
+            <div class="card card-producto h-100 shadow-sm">
+                <div class="d-flex justify-content-center align-items-center bg-white p-3" style="height: 200px;">
+                    <img th:src="${p.rutaImagen != null ? p.rutaImagen : '/img/producto-default.svg'}"
+                         class="img-fluid" th:alt="${p.descripcion}"
+                         style="max-height: 100%; object-fit: contain;"/>
+                </div>
+                <div class="card-header bg-white">
+                    <h5 class="card-title text-center text-truncate mb-0" th:text="${p.descripcion}">Producto</h5>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <p class="card-text text-muted mb-auto" th:text="${#strings.abbreviate(p.detalle, 90)}">Detalle</p>
+                </div>
+                <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+                    <span class="text-nasu h5 fw-bold mb-0" th:text="${#numbers.formatCurrency(p.precio)}">₡0</span>
+                    <span th:if="${p.existencias > 0}" class="badge text-bg-success"
+                          th:text="${p.existencias} + ' ' + #{producto.unidades}"></span>
+                    <span th:unless="${p.existencias > 0}" class="badge text-bg-danger">[[#{producto.agotado}]]</span>
+                    <a th:href="@{/producto/detalle/}+${p.idProducto}" class="btn btn-sm btn-nasu">
+                        <i class="fa-solid fa-eye"></i> [[#{producto.verDetalle}]]
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- fragmento 2 para el filtro de productos por categoría (HU-04) -->
+<aside th:fragment="filtros">
+    <div class="card">
+        <div class="card-header bg-nasu text-white"><h5 class="mb-0">[[#{producto.filtrar}]]</h5></div>
+        <div class="card-body p-2">
+            <h6 class="px-2 pt-1">[[#{producto.categoria}]]</h6>
+            <div class="list-group list-group-flush">
+                <a th:href="@{/producto/listado}"
+                   th:classappend="${idCategoriaActual == null} ? 'active'"
+                   class="list-group-item list-group-item-action">[[#{producto.todos}]]</a>
+                <a th:each="c : ${categorias}"
+                   th:href="@{/producto/categoria/{id}(id=${c.idCategoria})}"
+                   th:classappend="${idCategoriaActual != null and idCategoriaActual.equals(c.idCategoria)} ? 'active'"
+                   class="list-group-item list-group-item-action">[[${c.descripcion}]]</a>
+            </div>
+        </div>
+    </div>
+</aside>
