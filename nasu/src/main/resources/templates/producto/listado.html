@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head}"/>
+    <body>
+        <header th:replace="~{general/fragmentos :: header}"/>
+
+        <section class="container pt-4">
+            <h2>[[#{producto.catalogo}]]</h2>
+            <p class="text-muted mb-0">[[${totalProductos}]] [[#{producto.encontrados}]]</p>
+        </section>
+
+        <div th:if="${productos != null and !productos.empty}">
+            <section th:replace="~{producto/fragmentos :: tarjetas(${productos})}"/>
+        </div>
+        <section class="container text-center p-5" th:if="${productos == null or productos.empty}">
+            <i class="fa-solid fa-leaf fa-2x text-nasu mb-2"></i>
+            <p class="lead">[[#{producto.sinProductos}]]</p>
+        </section>
+
+        <section th:replace="~{general/fragmentos :: mostrarToast}"/>
+
+        <footer th:replace="~{general/fragmentos :: footer}"/>
+    </body>
+</html>
