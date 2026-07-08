@@ -19,6 +19,9 @@
                     <span th:if="${p.existencias > 0}" class="badge text-bg-success"
                           th:text="${p.existencias} + ' ' + #{producto.unidades}"></span>
                     <span th:unless="${p.existencias > 0}" class="badge text-bg-danger">[[#{producto.agotado}]]</span>
+                    <a th:href="@{/producto/detalle/}+${p.idProducto}" class="btn btn-sm btn-nasu">
+                        <i class="fa-solid fa-eye"></i> [[#{producto.verDetalle}]]
+                    </a>
                 </div>
             </div>
         </div>

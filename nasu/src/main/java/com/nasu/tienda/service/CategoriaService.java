@@ -3,6 +3,7 @@ package com.nasu.tienda.service;
 import com.nasu.tienda.domain.Categoria;
 import com.nasu.tienda.repository.CategoriaRepository;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,11 @@ public class CategoriaService {
             return categoriaRepository.findByActivoTrue();
         }
         return categoriaRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Categoria> getCategoria(Integer idCategoria) {
+        return categoriaRepository.findById(idCategoria);
     }
 
 }
