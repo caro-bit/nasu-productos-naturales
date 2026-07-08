@@ -178,8 +178,8 @@ create table carrito (
   activo boolean,
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id_carrito,id_usuario),
-  index ndx_id_carrito (id_carrito),
+  PRIMARY KEY (id_carrito),
+  index ndx_id_usuario (id_usuario),
   foreign key fk_carrito_usuario (id_usuario) references usuario(id_usuario))
   ENGINE = InnoDB;
 
@@ -194,7 +194,7 @@ create table detcarrito (
   activo boolean,
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id_detcarrito, id_carrito),
+  PRIMARY KEY (id_detcarrito),
   index ndx_id_carrito (id_carrito),
   foreign key fk_detcarrito_usuario (id_usuario) references usuario(id_usuario),
   foreign key fk_detcarrito_carrito (id_carrito) references carrito(id_carrito),
@@ -210,8 +210,8 @@ create table pedido (
   total decimal(12,2) check (total>0),
   id_descuento INT NULL,
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id_pedido,id_usuario),
-  index ndx_id_pedido (id_pedido),
+  PRIMARY KEY (id_pedido),
+  index ndx_id_usuario (id_usuario),
   foreign key fk_pedido_usuario (id_usuario) references usuario(id_usuario),
   foreign key fk_pedido_direccion (id_direccion) references direccion(id_direccion),
   foreign key fk_pedido_descuento (id_descuento) references descuento(id_descuento))
@@ -224,7 +224,7 @@ create table detpedido (
   id_producto INT NOT NULL,
   cantidad int unsigned CHECK (cantidad > 0),
   precio_unitario DECIMAL (12,2) CHECK (precio_unitario>0),
-  PRIMARY KEY (id_detpedido,id_pedido),
+  PRIMARY KEY (id_detpedido),
   index ndx_id_pedido (id_pedido),
   foreign key fk_detpedido_pedido (id_pedido) references pedido(id_pedido),
   foreign key fk_detpedido_producto (id_producto) references producto(id_producto))
