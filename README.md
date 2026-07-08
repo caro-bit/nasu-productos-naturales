@@ -49,14 +49,15 @@ nasu/                    Proyecto Spring Boot
 └── src/main/resources/
     ├── templates/       Vistas Thymeleaf
     └── static/          CSS e imágenes
-db/creaTablas.sql        Script de creación de la base de datos
+db/nasu.sql              Script de creación de la base de datos
 ```
 
 ## Requisitos de ejecución
 
 1. **JDK 21 o superior** y **MySQL 8** instalados.
-2. Ejecutar el script [db/creaTablas.sql](db/creaTablas.sql) en MySQL
-   (crea la base de datos `nasu`, el usuario de conexión y los datos iniciales del catálogo).
+2. Ejecutar el script [db/nasu.sql](db/nasu.sql) en MySQL
+   (crea la base de datos `nasu`, los usuarios de conexión, todas las tablas del sistema
+   y los datos iniciales del catálogo).
 3. Desde la carpeta `nasu/`, ejecutar la aplicación:
    - Con NetBeans: abrir el proyecto y presionar **Run**.
    - Por consola: `mvnw spring-boot:run` (Windows: `mvnw.cmd spring-boot:run`).
