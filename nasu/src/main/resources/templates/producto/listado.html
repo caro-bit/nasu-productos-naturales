@@ -6,7 +6,8 @@
         <header th:replace="~{general/fragmentos :: header}"/>
 
         <section class="container pt-4">
-            <h2>[[#{producto.catalogo}]]</h2>
+            <h2 th:if="${busquedaActual == null}">[[#{producto.catalogo}]]</h2>
+            <h2 th:if="${busquedaActual != null}">[[#{producto.resultados}]]: "[[${busquedaActual}]]"</h2>
             <p class="text-muted mb-0">[[${totalProductos}]] [[#{producto.encontrados}]]</p>
         </section>
 

@@ -27,6 +27,15 @@
                     <li class="nav-item px-2"><a class="nav-link" th:href="@{/nosotros}">[[#{plantilla.nosotros}]]</a></li>
                     <li class="nav-item px-2"><a class="nav-link" th:href="@{/contacto}">[[#{plantilla.contacto}]]</a></li>
                 </ul>
+                <!-- Formulario de búsqueda de productos por nombre (HU-03) -->
+                <form class="d-flex my-2" method="post" th:action="@{/producto/buscar}" role="search">
+                    <div class="input-group">
+                        <input type="search" name="descripcion" class="form-control"
+                               th:placeholder="#{producto.buscar}" th:value="${busquedaActual}" required/>
+                        <button class="btn btn-nasu" type="submit">
+                            <i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>
+                </form>
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">

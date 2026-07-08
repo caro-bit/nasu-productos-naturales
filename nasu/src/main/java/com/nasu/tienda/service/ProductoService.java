@@ -35,4 +35,9 @@ public class ProductoService {
         return productoRepository.findTop4ByActivoTrue();
     }
 
+    @Transactional(readOnly = true)
+    public List<Producto> buscarProductos(String descripcion) {
+        return productoRepository.findByDescripcionContainingIgnoreCaseAndActivoTrue(descripcion);
+    }
+
 }
