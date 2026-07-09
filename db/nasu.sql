@@ -373,7 +373,9 @@ INSERT INTO ruta (ruta, id_rol) VALUES
 ('/pruebas/**', 2),
 ('/reportes/**', 2),
 ('/paypal/**', 3),
-('/facturar/carrito', 3);
+('/facturar/carrito', 3),
+('/perfil', 3),
+('/carrito/**', 3);
 
 -- Inserción de rutas que no requieren rol
 -- (el catálogo público de las HU-01 a HU-04 debe ser accesible para visitantes)
@@ -387,7 +389,8 @@ INSERT INTO ruta (ruta,requiere_rol) VALUES
 ('/nosotros',false),
 ('/contacto',false),
 ('/errores/**',false),
-('/carrito/**',false),
+('/login',false),
+('/logout',false),
 ('/registro/**',false),
 ('/403',false),
 ('/fav/**',false),
