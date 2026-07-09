@@ -17,10 +17,17 @@
                     <p class="mb-1"><strong>[[#{pedido.fecha}]]:</strong> [[${pedido.fechaCreacion}]]</p>
                     <p class="mb-1"><strong>[[#{pedido.estado}]]:</strong>
                         <span class="badge bg-nasu">[[${pedido.estado}]]</span></p>
-                    <p class="mb-3"><strong>[[#{pedido.total}]]:</strong>
+                    <p class="mb-1"><strong>[[#{pedido.total}]]:</strong>
                         [[${#numbers.formatCurrency(pedido.total)}]]</p>
 
-                    <div class="table-responsive">
+                    <div th:if="${factura != null}" class="alert alert-light border">
+                        <p class="mb-1"><strong>[[#{factura.numero}]]:</strong> #[[${factura.idFactura}]]</p>
+                        <p class="mb-1"><strong>[[#{factura.estado}]]:</strong>
+                            <span class="badge bg-success">[[${factura.estado}]]</span></p>
+                        <p class="mb-0"><strong>[[#{pago.metodo}]]:</strong> [[${factura.metodoPago.nombreMetpago}]]</p>
+                    </div>
+
+                    <div class="table-responsive mt-3">
                         <table class="table align-middle">
                             <thead>
                                 <tr>

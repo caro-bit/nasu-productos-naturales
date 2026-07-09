@@ -54,6 +54,16 @@ public class PedidoService {
         return detPedidoRepository.findByIdPedido(idPedido);
     }
 
+    @Transactional(readOnly = true)
+    public Optional<Factura> getFacturaPorPedido(Integer idPedido) {
+        return facturaRepository.findByIdPedido(idPedido);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Venta> getVentasPorFactura(Integer idFactura) {
+        return ventaRepository.findByIdFactura(idFactura);
+    }
+
     @Transactional
     public Pedido confirmarPedido(Integer idUsuario, Integer idDireccion, Integer idMetodoPago) {
         var detalles = carritoService.getDetalleActivo(idUsuario);

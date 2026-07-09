@@ -39,14 +39,36 @@ public class PedidoController {
         }
 
         try {
-            pedidoService.confirmarPedido(idUsuario, idDireccion, idMetodoPago);
+            Pedido pedido = pedidoService.confirmarPedido(idUsuario, idDireccion, idMetodoPago);
             redirectAttributes.addFlashAttribute("todoOk",
                     messageSource.getMessage("pedido.confirmar.ok", null, Locale.getDefault()));
-            return "redirect:/carrito/listado";
+            return "redirect:/pedido/confirmacion/" + pedido.getIdPedido();
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
             return "redirect:/carrito/checkout";
         }
+    }
+
+    @GetMapping("/confirmacion/{idPedido}")
+    public String confirmacion(@PathVariable Integer idPedido, HttpSession session,
+            Model model, RedirectAttributes redirectAttributes) {
+
+        Integer idUsuario = getIdUsuario(session);
+        if (idUsuario == null) {
+            redirectAttributes.addFlashAttribute("error",
+                    messageSource.getMessage("usuario.login.requerido", null, Locale.getDefault()));
+            return "redirect:/login";
+        }
+
+        Optional<Pedido> pedidoOpt = pedidoService.getPedido(idUsuario, idPedido);
+        if (pedidoOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error",
+                    messageSource.getMessage("pedido.error01", null, Locale.getDefault()));
+            return "redirect:/";
+        }
+
+        cargarModeloPedido(model, idPedido, pedidoOpt.get());
+        return "/pedido/confirmacion";
     }
 
     @GetMapping("/historial")
@@ -80,9 +102,19 @@ public class PedidoController {
             return "redirect:/pedido/historial";
         }
 
-        model.addAttribute("pedido", pedidoOpt.get());
-        model.addAttribute("detalles", pedidoService.getDetallePedido(idPedido));
+        cargarModeloPedido(model, idPedido, pedidoOpt.get());
         return "/pedido/detalle";
+    }
+
+    private void cargarModeloPedido(Model model, Integer idPedido, Pedido pedido) {
+        model.addAttribute("pedido", pedido);
+        model.addAttribute("detalles", pedidoService.getDetallePedido(idPedido));
+
+        var facturaOpt = pedidoService.getFacturaPorPedido(idPedido);
+        facturaOpt.ifPresent(factura -> {
+            model.addAttribute("factura", factura);
+            model.addAttribute("ventas", pedidoService.getVentasPorFactura(factura.getIdFactura()));
+        });
     }
 
     private Integer getIdUsuario(HttpSession session) {
