@@ -63,6 +63,21 @@ db/nasu.sql              Script de creación de la base de datos
    - Por consola: `mvnw spring-boot:run` (Windows: `mvnw.cmd spring-boot:run`).
 4. Abrir el navegador en `http://localhost` (la aplicación escucha en el puerto 80).
 
+### Problemas comunes en macOS
+
+**Error: `Permission denied` al ejecutar `./mvnw`**
+Cannot run program "./mvnw" (in directory "/Users/username/NetBeansProjects/nasu-productos-naturales/nasu"): Exec failed, error: 13 (Permission denied)
+
+Esto ocurre porque el script `mvnw` perdió su permiso de ejecución (algo común al clonar el repositorio, extraer un zip o copiar archivos en macOS). Se soluciona desde una terminal:
+
+```bash
+cd /Users/username/NetBeansProjects/nasu-productos-naturales/nasu
+chmod +x mvnw
+```
+
+Luego vuelve a ejecutar el proyecto con normalidad.
+
+
 ## Estado del avance (Avance 2)
 
 Historias de usuario implementadas y funcionales:
@@ -71,9 +86,15 @@ Historias de usuario implementadas y funcionales:
 - ✅ **HU-02** — Detalle de producto (descripción, ingredientes y precio)
 - ✅ **HU-03** — Búsqueda de productos por nombre
 - ✅ **HU-04** — Filtro de productos por categoría
+- ✅ **HU-05** — Registro de cliente en el sistema para realizar compras y dar seguimiento a pedidos
+- ✅ **HU-06** — Inicio de sesión del cliente para acceder a su información personal y compras
+- ✅ **HU-07** — Agregar productos al carrito para comprarlos posteriormente
+- ✅ **HU-08** — Modificar las cantidades del carrito para ajustar la compra
+- ✅ **HU-09** — Eliminar productos del carrito para actualizar el pedido
+- ✅ **HU-10** — Confirmar una compra para realizar un pedido de productos
+- ✅ **HU-11** — Consultar el historial de pedidos para dar seguimiento a compras anteriores
+- ✅ **HU-21** — Confirmación de compra para verificar que el pedido fue registrado
 
-En desarrollo por el resto del equipo: registro e inicio de sesión (HU-05, HU-06),
-carrito de compras (HU-07 a HU-09) y confirmación de pedidos (HU-10).
 
 ## Equipo
 Ballkiria Monge Espinoza  

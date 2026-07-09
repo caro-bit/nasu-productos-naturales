@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head}"/>
+    <body>
+        <header th:replace="~{general/fragmentos :: header}"/>
+
+        <section class="container pt-4">
+            <h2><i class="fa-solid fa-box-open text-nasu"></i> [[#{pedido.misCompras}]]</h2>
+
+            <div th:if="${pedidos != null and !pedidos.empty}" class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>[[#{pedido.numero}]]</th>
+                            <th>[[#{pedido.fecha}]]</th>
+                            <th>[[#{pedido.estado}]]</th>
+                            <th class="text-end">[[#{pedido.total}]]</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p : ${pedidos}">
+                            <td># [[${p.idPedido}]]</td>
+                            <td>[[${p.fechaCreacion}]]</td>
+                            <td><span class="badge bg-nasu">[[${p.estado}]]</span></td>
+                            <td class="text-end" th:text="${#numbers.formatCurrency(p.total)}">₡0</td>
+                            <td>
+                                <a th:href="@{/pedido/detalle/{id}(id=${p.idPedido})}" class="btn btn-sm btn-outline-nasu">
+                                    [[#{producto.verDetalle}]]</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:if="${pedidos == null or pedidos.empty}" class="text-center p-5">
+                <i class="fa-solid fa-seedling fa-2x text-nasu mb-2"></i>
+                <p class="lead mb-1">[[#{pedido.sinCompras}]]</p>
+                <p class="text-muted">[[#{pedido.sinCompras.texto}]]</p>
+                <a th:href="@{/producto/listado}" class="btn btn-nasu">[[#{index.verCatalogo}]]</a>
+            </div>
+        </section>
+
+        <section th:replace="~{general/fragmentos :: mostrarToast}"/>
+        <footer th:replace="~{general/fragmentos :: footer}"/>
+    </body>
+</html>

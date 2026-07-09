@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head}"/>
+    <body>
+        <header th:replace="~{general/fragmentos :: header}"/>
+
+        <section class="container pt-4">
+            <a th:href="@{/pedido/historial}" class="btn btn-outline-nasu mb-3">
+                <i class="fa-solid fa-arrow-left"></i> [[#{pedido.misCompras}]]</a>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-nasu text-white">
+                    [[#{pedido.numero}]] #[[${pedido.idPedido}]]
+                </div>
+                <div class="card-body bg-white">
+                    <p class="mb-1"><strong>[[#{pedido.fecha}]]:</strong> [[${pedido.fechaCreacion}]]</p>
+                    <p class="mb-1"><strong>[[#{pedido.estado}]]:</strong>
+                        <span class="badge bg-nasu">[[${pedido.estado}]]</span></p>
+                    <p class="mb-1"><strong>[[#{pedido.total}]]:</strong>
+                        [[${#numbers.formatCurrency(pedido.total)}]]</p>
+
+                    <div th:if="${factura != null}" class="alert alert-light border">
+                        <p class="mb-1"><strong>[[#{factura.numero}]]:</strong> #[[${factura.idFactura}]]</p>
+                        <p class="mb-1"><strong>[[#{factura.estado}]]:</strong>
+                            <span class="badge bg-success">[[${factura.estado}]]</span></p>
+                        <p class="mb-0"><strong>[[#{pago.metodo}]]:</strong> [[${factura.metodoPago.nombreMetpago}]]</p>
+                    </div>
+
+                    <div class="table-responsive mt-3">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>[[#{producto.descripcion}]]</th>
+                                    <th class="text-center">[[#{producto.cantidad}]]</th>
+                                    <th class="text-end">[[#{producto.precio}]]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="d : ${detalles}">
+                                    <td>[[${d.producto.descripcion}]]</td>
+                                    <td class="text-center">[[${d.cantidad}]]</td>
+                                    <td class="text-end" th:text="${#numbers.formatCurrency(d.precioUnitario)}">₡0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer th:replace="~{general/fragmentos :: footer}"/>
+    </body>
+</html>
