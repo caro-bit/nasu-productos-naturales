@@ -75,8 +75,8 @@
                                 <span>[[#{carrito.total}]]</span>
                                 <strong class="text-nasu" th:text="${#numbers.formatCurrency(total)}">₡0</strong>
                             </div>
-                            <button class="btn btn-nasu w-100 mt-3" disabled>
-                                <i class="fa-solid fa-lock"></i> [[#{carrito.checkoutPendiente}]]</button>
+                            <a th:href="@{/carrito/checkout}" class="btn btn-nasu w-100 mt-3">
+                               <i class="fa-solid fa-check"></i> [[#{carrito.finalizarCompra}]]</a>
                             <form method="post" th:action="@{/carrito/vaciar}" th:if="${detalles != null and !detalles.empty}" class="mt-2">
                                 <button type="submit" class="btn btn-outline-danger w-100">[[#{carrito.vaciar}]]</button>
                             </form>

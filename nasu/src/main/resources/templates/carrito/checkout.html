@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head}"/>
+    <body>
+        <header th:replace="~{general/fragmentos :: header}"/>
+
+        <section class="container pt-4">
+            <h2 class="mb-4"><i class="fa-solid fa-clipboard-check text-nasu"></i> [[#{checkout.titulo}]]</h2>
+
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <!-- Dirección de entrega -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-nasu text-white">[[#{pedido.direccion}]]</div>
+                        <div class="card-body bg-white">
+                            <div th:if="${direcciones != null and !direcciones.empty}" class="mb-3">
+                                <label class="form-label">[[#{direccion.seleccionar}]]</label>
+                                <select id="idDireccionSelect" class="form-select">
+                                    <option th:each="d : ${direcciones}" th:value="${d.idDireccion}">
+                                        [[${d.nombreDireccion}]] - [[${d.dirExacta}]]
+                                    </option>
+                                </select>
+                            </div>
+
+                            <form method="post" th:action="@{/direccion/guardar}" th:object="${direccion}" class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">[[#{direccion.nombre}]]</label>
+                                    <input type="text" th:field="*{nombreDireccion}" class="form-control" required/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">[[#{direccion.provincia}]]</label>
+                                    <input type="text" th:field="*{provincia}" class="form-control" required/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">[[#{direccion.canton}]]</label>
+                                    <input type="text" th:field="*{canton}" class="form-control" required/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">[[#{direccion.distrito}]]</label>
+                                    <input type="text" th:field="*{distrito}" class="form-control" required/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">[[#{direccion.codigoPostal}]]</label>
+                                    <input type="number" th:field="*{codigoPostal}" class="form-control" required/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">[[#{direccion.exacta}]]</label>
+                                    <input type="text" th:field="*{dirExacta}" class="form-control" required/>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">[[#{direccion.detalles}]]</label>
+                                    <input type="text" th:field="*{detallesAdicionales}" class="form-control"/>
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <button type="submit" class="btn btn-outline-nasu">
+                                        <i class="fa-solid fa-plus"></i> [[#{direccion.agregar}]]</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Método de pago simulado -->
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-nasu text-white">[[#{pago.titulo}]]</div>
+                        <div class="card-body bg-white">
+                            <p class="text-muted small">[[#{pago.simulado.aviso}]]</p>
+                            <div class="mb-3">
+                                <label class="form-label">[[#{pago.metodo}]]</label>
+                                <select id="idMetodoPagoSelect" class="form-select" onchange="mostrarCamposPago(this.value)">
+                                    <option th:each="m : ${metodosPago}" th:value="${m.idMetpago}"
+                                            th:text="${m.nombreMetpago}" th:data-nombre="${m.nombreMetpago}"></option>
+                                </select>
+                            </div>
+
+                            <!-- Campos falsos de tarjeta: no se envían al servidor, solo simulan-->
+                            <div id="camposTarjeta" class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">[[#{pago.numeroTarjeta}]]</label>
+                                    <input type="text" class="form-control" placeholder="4111 1111 1111 1111" maxlength="19"/>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">[[#{pago.vencimiento}]]</label>
+                                    <input type="text" class="form-control" placeholder="MM/AA" maxlength="5"/>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">[[#{pago.cvv}]]</label>
+                                    <input type="text" class="form-control" placeholder="123" maxlength="4"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-nasu text-white">[[#{carrito.resumen}]]</div>
+                        <div class="card-body bg-white">
+                            <div th:each="d : ${detalles}" class="d-flex justify-content-between border-bottom py-2">
+                                <span>[[${d.producto.descripcion}]] x[[${d.cantidad}]]</span>
+                                <strong th:text="${#numbers.formatCurrency(d.subtotal)}">₡0</strong>
+                            </div>
+                            <div class="d-flex justify-content-between h5 mt-3">
+                                <span>[[#{carrito.total}]]</span>
+                                <strong class="text-nasu" th:text="${#numbers.formatCurrency(total)}">₡0</strong>
+                            </div>
+
+                            <form method="post" th:action="@{/pedido/confirmar}" id="formConfirmar">
+                                <input type="hidden" name="idDireccion" id="idDireccionInput"/>
+                                <input type="hidden" name="idMetodoPago" id="idMetodoPagoInput"/>
+                                <button type="submit" class="btn btn-nasu w-100 mt-2">
+                                    <i class="fa-solid fa-check"></i> [[#{checkout.confirmarBoton}]]</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section th:replace="~{general/fragmentos :: mostrarToast}"/>
+        <footer th:replace="~{general/fragmentos :: footer}"/>
+
+        <script>
+            // Muestra los campos de tarjeta solo si el método seleccionado los requiere
+            function mostrarCamposPago(idMetodo) {
+                const select = document.getElementById('idMetodoPagoSelect');
+                const opcion = select.options[select.selectedIndex];
+                const nombre = opcion ? opcion.getAttribute('data-nombre') : '';
+                const camposTarjeta = document.getElementById('camposTarjeta');
+                camposTarjeta.style.display = (nombre === 'Tarjeta de crédito / débito') ? 'flex' : 'none';
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const selectMetodo = document.getElementById('idMetodoPagoSelect');
+                if (selectMetodo) {
+                    mostrarCamposPago(selectMetodo.value);
+                }
+            });
+
+            document.getElementById('formConfirmar').addEventListener('submit', function (e) {
+                const selectDireccion = document.getElementById('idDireccionSelect');
+                const selectMetodo = document.getElementById('idMetodoPagoSelect');
+                document.getElementById('idDireccionInput').value = selectDireccion ? selectDireccion.value : '';
+                document.getElementById('idMetodoPagoInput').value = selectMetodo ? selectMetodo.value : '';
+
+                if (!document.getElementById('idDireccionInput').value) {
+                    e.preventDefault();
+                    alert('Selecciona o agrega una dirección de entrega antes de confirmar.');
+                } else if (!document.getElementById('idMetodoPagoInput').value) {
+                    e.preventDefault();
+                    alert('Selecciona un método de pago antes de confirmar.');
+                }
+            });
+        </script>
+    </body>
+</html>

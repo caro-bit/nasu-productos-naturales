@@ -1,6 +1,9 @@
 package com.nasu.tienda.controller;
 
+import com.nasu.tienda.domain.Direccion;
 import com.nasu.tienda.service.CarritoService;
+import com.nasu.tienda.service.DireccionService;
+import com.nasu.tienda.service.MetPagoService;
 import jakarta.servlet.http.HttpSession;
 import java.util.Locale;
 import org.springframework.context.MessageSource;
@@ -18,14 +21,42 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class CarritoController {
 
     private final CarritoService carritoService;
+    private final DireccionService direccionService;
+    private final MetPagoService metPagoService;
     private final MessageSource messageSource;
 
-    public CarritoController(CarritoService carritoService, MessageSource messageSource) {
+    public CarritoController(CarritoService carritoService, DireccionService direccionService,
+            MetPagoService metPagoService, MessageSource messageSource) {
         this.carritoService = carritoService;
+        this.direccionService = direccionService;
+        this.metPagoService = metPagoService;
         this.messageSource = messageSource;
     }
 
-    // HU-03: muestra los productos guardados en el carrito del cliente
+    @GetMapping("/checkout")
+    public String checkout(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+        Integer idUsuario = getIdUsuario(session);
+        if (idUsuario == null) {
+            redirectAttributes.addFlashAttribute("error",
+                    messageSource.getMessage("usuario.login.requerido", null, Locale.getDefault()));
+            return "redirect:/login";
+        }
+
+        var detalles = carritoService.getDetalleActivo(idUsuario);
+        if (detalles.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error",
+                    messageSource.getMessage("carrito.vacio.error", null, Locale.getDefault()));
+            return "redirect:/carrito/listado";
+        }
+
+        model.addAttribute("detalles", detalles);
+        model.addAttribute("total", carritoService.calcularTotal(detalles));
+        model.addAttribute("direcciones", direccionService.getDireccionesPorUsuario(idUsuario));
+        model.addAttribute("direccion", new Direccion());
+        model.addAttribute("metodosPago", metPagoService.getMetodosPago());
+        return "/carrito/checkout";
+    }
+
     @GetMapping("/listado")
     public String listado(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
         Integer idUsuario = getIdUsuario(session);
@@ -42,7 +73,6 @@ public class CarritoController {
         return "/carrito/listado";
     }
 
-    // HU-03: agrega un producto activo al carrito para comprarlo posteriormente
     @PostMapping("/agregar/{idProducto}")
     public String agregar(@PathVariable("idProducto") Integer idProducto,
             @RequestParam(defaultValue = "1") Integer cantidad,
