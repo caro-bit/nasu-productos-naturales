@@ -26,8 +26,11 @@
                     <div class="card shadow-sm">
                         <div class="card-header bg-white d-flex justify-content-between align-items-center">
                             <h5 class="mb-0 text-nasu"><i class="fa-solid fa-box-open"></i> [[#{pedido.misCompras}]]</h5>
-                            <a th:href="@{/carrito/listado}" class="btn btn-sm btn-nasu">
-                                <i class="fa-solid fa-cart-shopping"></i> [[#{plantilla.carrito}]]</a>
+                            <div>
+                                <a th:href="@{/pedido/historial}" class="btn btn-sm btn-outline-nasu">[[#{pedido.verHistorial}]]</a>
+                                <a th:href="@{/carrito/listado}" class="btn btn-sm btn-nasu">
+                                    <i class="fa-solid fa-cart-shopping"></i> [[#{plantilla.carrito}]]</a>
+                            </div>
                         </div>
                         <div class="card-body bg-white">
                             <div th:if="${pedidos != null and !pedidos.empty}" class="table-responsive">
@@ -38,6 +41,7 @@
                                             <th>[[#{pedido.fecha}]]</th>
                                             <th>[[#{pedido.estado}]]</th>
                                             <th class="text-end">[[#{pedido.total}]]</th>
+                                            <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -46,6 +50,8 @@
                                             <td>[[${p.fechaCreacion}]]</td>
                                             <td><span class="badge bg-nasu">[[${p.estado}]]</span></td>
                                             <td class="text-end" th:text="${#numbers.formatCurrency(p.total)}">₡0</td>
+                                            <td><a th:href="@{/pedido/detalle/{id}(id=${p.idPedido})}" class="btn btn-sm btn-outline-nasu">
+                                                    [[#{producto.verDetalle}]]</a></td>
                                         </tr>
                                     </tbody>
                                 </table>

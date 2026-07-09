@@ -13,6 +13,7 @@ import com.nasu.tienda.repository.ProductoRepository;
 import com.nasu.tienda.repository.VentaRepository;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +42,16 @@ public class PedidoService {
     @Transactional(readOnly = true)
     public List<Pedido> getPedidosPorUsuario(Integer idUsuario) {
         return pedidoRepository.findByIdUsuarioOrderByFechaCreacionDesc(idUsuario);
+    }
+    
+    @Transactional(readOnly = true)
+    public Optional<Pedido> getPedido(Integer idUsuario, Integer idPedido) {
+        return pedidoRepository.findByIdPedidoAndIdUsuario(idPedido, idUsuario);
+    }
+    
+    @Transactional(readOnly = true)
+    public List<DetPedido> getDetallePedido(Integer idPedido) {
+        return detPedidoRepository.findByIdPedido(idPedido);
     }
 
     @Transactional
