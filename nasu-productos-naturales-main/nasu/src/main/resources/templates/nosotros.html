@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head}"/>
+    <body>
+        <header th:replace="~{general/fragmentos :: header}"/>
+
+        <section class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <h2 class="text-center mb-4"><i class="fa-solid fa-leaf text-nasu"></i> [[#{nosotros.titulo}]]</h2>
+                    <div class="card p-4">
+                        <p>[[#{nosotros.texto1}]]</p>
+                        <p>[[#{nosotros.texto2}]]</p>
+                        <p class="mb-0 fst-italic text-nasu">[[#{nosotros.texto3}]]</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer th:replace="~{general/fragmentos :: footer}"/>
+    </body>
+</html>

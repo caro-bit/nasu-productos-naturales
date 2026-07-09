@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head}"/>
+    <body>
+        <header th:replace="~{general/fragmentos :: header}"/>
+
+        <section class="container pt-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h2 class="mb-0"><i class="fa-solid fa-cart-shopping text-nasu"></i> [[#{carrito.titulo}]]</h2>
+                    <p class="text-muted mb-0">[[${cantidadArticulos}]] [[#{carrito.articulos}]]</p>
+                </div>
+                <a th:href="@{/producto/listado}" class="btn btn-outline-nasu">
+                    <i class="fa-solid fa-arrow-left"></i> [[#{accion.regresar}]]</a>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div th:if="${detalles != null and !detalles.empty}" class="card shadow-sm">
+                        <div class="card-body bg-white">
+                            <!-- HU-03: productos guardados para comprar posteriormente -->
+                            <div th:each="d : ${detalles}" class="row align-items-center border-bottom py-3">
+                                <div class="col-md-2 text-center">
+                                    <img th:src="${d.producto.rutaImagen != null ? d.producto.rutaImagen : '/img/producto-default.svg'}"
+                                         class="img-fluid" th:alt="${d.producto.descripcion}" style="max-height: 80px; object-fit: contain;"/>
+                                </div>
+                                <div class="col-md-4">
+                                    <h5 class="mb-1">[[${d.producto.descripcion}]]</h5>
+                                    <small class="text-muted" th:text="${#numbers.formatCurrency(d.producto.precio)}">₡0</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <form method="post" th:action="@{/carrito/actualizar/{id}(id=${d.idDetcarrito})}" class="d-flex gap-2">
+                                        <input type="number" name="cantidad" class="form-control form-control-sm" min="1"
+                                               th:max="${d.producto.existencias}" th:value="${d.cantidad}" required/>
+                                        <button type="submit" class="btn btn-sm btn-outline-nasu">
+                                            <i class="fa-solid fa-rotate"></i></button>
+                                    </form>
+                                </div>
+                                <div class="col-md-2 text-md-end">
+                                    <strong class="text-nasu" th:text="${#numbers.formatCurrency(d.subtotal)}">₡0</strong>
+                                </div>
+                                <div class="col-md-1 text-md-end">
+                                    <form method="post" th:action="@{/carrito/eliminar/{id}(id=${d.idDetcarrito})}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fa-solid fa-trash-can"></i></button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div th:if="${detalles == null or detalles.empty}" class="card shadow-sm">
+                        <div class="card-body bg-white text-center p-5">
+                            <i class="fa-solid fa-basket-shopping fa-3x text-nasu mb-3"></i>
+                            <h4>[[#{carrito.vacio}]]</h4>
+                            <p class="text-muted">[[#{carrito.vacio.texto}]]</p>
+                            <a th:href="@{/producto/listado}" class="btn btn-nasu">[[#{index.verCatalogo}]]</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-nasu text-white">
+                            <h5 class="mb-0">[[#{carrito.resumen}]]</h5>
+                        </div>
+                        <div class="card-body bg-white">
+                            <div class="d-flex justify-content-between">
+                                <span>[[#{carrito.subtotal}]]</span>
+                                <strong th:text="${#numbers.formatCurrency(total)}">₡0</strong>
+                            </div>
+                            <hr/>
+                            <div class="d-flex justify-content-between h5">
+                                <span>[[#{carrito.total}]]</span>
+                                <strong class="text-nasu" th:text="${#numbers.formatCurrency(total)}">₡0</strong>
+                            </div>
+                            <button class="btn btn-nasu w-100 mt-3" disabled>
+                                <i class="fa-solid fa-lock"></i> [[#{carrito.checkoutPendiente}]]</button>
+                            <form method="post" th:action="@{/carrito/vaciar}" th:if="${detalles != null and !detalles.empty}" class="mt-2">
+                                <button type="submit" class="btn btn-outline-danger w-100">[[#{carrito.vaciar}]]</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section th:replace="~{general/fragmentos :: mostrarToast}"/>
+        <footer th:replace="~{general/fragmentos :: footer}"/>
+    </body>
+</html>

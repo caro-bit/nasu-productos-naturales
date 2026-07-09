@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head}"/>
+    <body>
+        <header th:replace="~{general/fragmentos :: header}"/>
+
+        <section class="container pt-4">
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-5">
+                    <div class="card shadow-sm card-producto">
+                        <div class="card-header bg-nasu text-white text-center">
+                            <h3 class="mb-0"><i class="fa-solid fa-right-to-bracket"></i> [[#{usuario.login.titulo}]]</h3>
+                        </div>
+                        <div class="card-body bg-white">
+                            <p class="text-muted text-center">[[#{usuario.login.texto}]]</p>
+
+                            <!-- HU-02: formulario de inicio de sesión -->
+                            <form method="post" th:action="@{/login}">
+                                <div class="mb-3">
+                                    <label class="form-label">[[#{usuario.username}]]</label>
+                                    <input type="text" name="username" class="form-control" required autofocus/>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">[[#{usuario.password}]]</label>
+                                    <input type="password" name="password" class="form-control" required/>
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-nasu">
+                                        <i class="fa-solid fa-leaf"></i> [[#{usuario.iniciarSesion}]]</button>
+                                    <a th:href="@{/registro}" class="btn btn-outline-nasu">[[#{usuario.crearCuenta}]]</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section th:replace="~{general/fragmentos :: mostrarToast}"/>
+        <footer th:replace="~{general/fragmentos :: footer}"/>
+    </body>
+</html>

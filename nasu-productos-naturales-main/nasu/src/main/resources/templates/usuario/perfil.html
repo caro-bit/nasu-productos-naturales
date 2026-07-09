@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head}"/>
+    <body>
+        <header th:replace="~{general/fragmentos :: header}"/>
+
+        <section class="container pt-4">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-nasu text-white">
+                            <h5 class="mb-0"><i class="fa-solid fa-user"></i> [[#{usuario.miCuenta}]]</h5>
+                        </div>
+                        <div class="card-body bg-white">
+                            <h4 class="text-nasu">[[${usuario.nombre}]] [[${usuario.apellidos}]]</h4>
+                            <p class="mb-1"><strong>[[#{usuario.username}]]:</strong> [[${usuario.username}]]</p>
+                            <p class="mb-1"><strong>[[#{usuario.correo}]]:</strong> [[${usuario.correo}]]</p>
+                            <p class="mb-0" th:if="${usuario.telefono != null}">
+                                <strong>[[#{usuario.telefono}]]:</strong> [[${usuario.telefono}]]</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 text-nasu"><i class="fa-solid fa-box-open"></i> [[#{pedido.misCompras}]]</h5>
+                            <a th:href="@{/carrito/listado}" class="btn btn-sm btn-nasu">
+                                <i class="fa-solid fa-cart-shopping"></i> [[#{plantilla.carrito}]]</a>
+                        </div>
+                        <div class="card-body bg-white">
+                            <div th:if="${pedidos != null and !pedidos.empty}" class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>[[#{pedido.numero}]]</th>
+                                            <th>[[#{pedido.fecha}]]</th>
+                                            <th>[[#{pedido.estado}]]</th>
+                                            <th class="text-end">[[#{pedido.total}]]</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="p : ${pedidos}">
+                                            <td># [[${p.idPedido}]]</td>
+                                            <td>[[${p.fechaCreacion}]]</td>
+                                            <td><span class="badge bg-nasu">[[${p.estado}]]</span></td>
+                                            <td class="text-end" th:text="${#numbers.formatCurrency(p.total)}">₡0</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div th:if="${pedidos == null or pedidos.empty}" class="text-center p-4">
+                                <i class="fa-solid fa-seedling fa-2x text-nasu mb-2"></i>
+                                <p class="lead mb-1">[[#{pedido.sinCompras}]]</p>
+                                <p class="text-muted">[[#{pedido.sinCompras.texto}]]</p>
+                                <a th:href="@{/producto/listado}" class="btn btn-nasu">[[#{index.verCatalogo}]]</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section th:replace="~{general/fragmentos :: mostrarToast}"/>
+        <footer th:replace="~{general/fragmentos :: footer}"/>
+    </body>
+</html>
