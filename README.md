@@ -93,6 +93,10 @@ Historias de usuario implementadas y funcionales:
 - ✅ **HU-09** — Eliminar productos del carrito para actualizar el pedido
 - ✅ **HU-10** — Confirmar una compra para realizar un pedido de productos
 - ✅ **HU-11** — Consultar el historial de pedidos para dar seguimiento a compras anteriores
+- ✅ **HU-12** — Administrador, registra nuevos productos para mantener actualizado el catálogo.
+- ✅ **HU-13** — Administrador, edita productos para actualizar precios, imágenes o descripciones.
+- ✅ **HU-14** — Administrador, desactiva productos para evitar su venta cuando ya no estén disponibles.(PARCIAL)
+- ✅ **HU-15** — Administrador, registra la cantidad disponible de cada producto para controlar el inventario.
 - ✅ **HU-21** — Confirmación de compra para verificar que el pedido fue registrado
 
 
