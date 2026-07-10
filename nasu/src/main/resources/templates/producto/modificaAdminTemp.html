@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head}"/>
+    <body>
+        <header th:replace="~{general/fragmentos :: header}"/>
+
+        <section class="container pt-4">
+            <form method="post" th:action="@{/producto/guardar}" th:object="${producto}" class="was-validated">
+                <input type="hidden" th:field="*{idProducto}"/>
+                <div class="row py-3 mb-3 bg-light">
+                    <div class="col-md-4 d-grid">
+                        <a th:href="@{/producto/listadoAdminTemp}" class="btn btn-outline-nasu">
+                            <i class="fa-solid fa-arrow-left"></i> [[#{accion.regresar}]]</a>
+                    </div>
+                    <div class="col-md-4 d-grid">
+                        <button type="submit" class="btn btn-nasu">
+                            <i class="fa-solid fa-check"></i> [[#{accion.guardar}]]</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header bg-nasu text-white"><h4 class="mb-0">[[#{accion.actualizar}]]</h4></div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label>[[#{producto.categoria}]]</label>
+                            <select th:field="*{idCategoria}" class="form-select">
+                                <option th:each="c : ${categorias}" th:value="${c.idCategoria}">[[${c.descripcion}]]</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label>[[#{producto.descripcion}]]</label>
+                            <input type="text" class="form-control" th:field="*{descripcion}" maxlength="50" required/>
+                        </div>
+                        <div class="mb-3">
+                            <label>[[#{producto.detalle}]]</label>
+                            <textarea class="form-control" th:field="*{detalle}" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label>[[#{producto.ingredientes}]]</label>
+                            <textarea class="form-control" th:field="*{ingredientes}" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label>[[#{producto.precio}]]</label>
+                            <input type="number" step="0.01" class="form-control" th:field="*{precio}" min="0" required/>
+                        </div>
+                        <div class="mb-3">
+                            <label>[[#{producto.existencias}]]</label>
+                            <input type="number" class="form-control" th:field="*{existencias}" min="0" required/>
+                        </div>
+                        <div class="mb-3">
+                            <label>[[#{producto.imagen}]]</label>
+                            <input type="text" class="form-control" th:field="*{rutaImagen}" placeholder="/img/mi-producto.jpg"/>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" th:field="*{activo}" id="activoCheckEditar"/>
+                            <label class="form-check-label" for="activoCheckEditar">[[#{producto.activo}]]</label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <section th:replace="~{general/fragmentos :: mostrarToast}"/>
+        <footer th:replace="~{general/fragmentos :: footer}"/>
+    </body>
+</html>
