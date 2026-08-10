@@ -1,6 +1,7 @@
 package com.nasu.tienda.repository;
 
 import com.nasu.tienda.domain.Usuario;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -23,4 +24,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     @Modifying
     @Query(value = "INSERT INTO usuario_rol (id_usuario, id_rol) VALUES (:idUsuario, :idRol)", nativeQuery = true)
     public void asignarRol(@Param("idUsuario") Integer idUsuario, @Param("idRol") Integer idRol);
+
+    //Roles asignados al usuario, para distinguir al administrador de los clientes
+    @Query(value = "SELECT r.rol FROM rol r "
+            + "JOIN usuario_rol ur ON ur.id_rol = r.id_rol "
+            + "WHERE ur.id_usuario = :idUsuario", nativeQuery = true)
+    public List<String> findRolesByIdUsuario(@Param("idUsuario") Integer idUsuario);
 }

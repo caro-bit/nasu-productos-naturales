@@ -5,8 +5,13 @@
 */
 -- Sección de administración (ejecutar una vez en un entorno de desarrollo)
 drop database if exists nasu;
-drop user if exists usuario_prueba;
-drop user if exists usuario_reportes;
+-- Se eliminan las dos variantes de host: si queda un usuario 'x'@'localhost'
+-- de una instalación anterior, MySQL lo prefiere sobre 'x'@'%' al conectarse
+-- desde la misma máquina y la aplicación falla con "SELECT command denied".
+drop user if exists 'usuario_prueba'@'%';
+drop user if exists 'usuario_prueba'@'localhost';
+drop user if exists 'usuario_reportes'@'%';
+drop user if exists 'usuario_reportes'@'localhost';
 
 -- Creación del esquema
 CREATE database nasu
@@ -355,11 +360,15 @@ insert into usuario_rol (id_usuario, id_rol) values
  (1,1), (1,2), (1,3),(2,2),(2,3),(3,3);
 
 -- Inserción de rutas con roles específicos
+-- (mientras no se active Spring Security, el rol ADMIN se valida en los
+--  controladores con el dato que el login deja en la sesión)
 INSERT INTO ruta (ruta, id_rol) VALUES
 ('/producto/nuevo', 1),
 ('/producto/guardar', 1),
-('/producto/modificar/**', 1),
-('/producto/eliminar/**', 1),
+('/producto/listadoAdminTemp', 1),
+('/producto/editar/**', 1),
+('/producto/eliminar', 1),
+('/reporte/**', 1),
 ('/categoria/nuevo', 1),
 ('/categoria/guardar', 1),
 ('/categoria/modificar/**', 1),
@@ -399,6 +408,66 @@ INSERT INTO ruta (ruta,requiere_rol) VALUES
 ('/img/**',false),
 ('/webjars/**',false);
 
--- Inserciones de facturas y ventas: pendientes de definir por el equipo
--- cuando se implementen los pedidos (HU-10) y las ventas/reportes (HU-18),
--- ya que requieren pedidos, direcciones y métodos de pago asociados.
+-- --- Sección de datos de ventas de ejemplo ---
+-- Estos datos permiten probar la consulta de ventas (HU-18) y el reporte por
+-- período (HU-19) sin tener que registrar pedidos manualmente. Las fechas se
+-- reparten en tres meses para que el reporte muestre variación entre períodos.
+
+-- Direcciones de entrega de los clientes de ejemplo
+INSERT INTO direccion (id_usuario,nombre_direccion,provincia,canton,distrito,codigo_postal,dir_exacta,detalles_adicionales) VALUES
+(2,'Casa','Limón','Talamanca','Puerto Viejo',70403,'200 metros sur de la panadería','Portón verde'),
+(3,'Oficina','San José','San José','Carmen',10101,'Avenida 7, edificio Torre Blanca','Piso 3');
+
+-- Pedidos de ejemplo (HU-10)
+INSERT INTO pedido (id_pedido,id_usuario,id_direccion,estado,total,fecha_creacion) VALUES
+(1,2,1,'Entregado', 21000.00,'2026-06-12 10:15:00'),
+(2,3,2,'Entregado', 16500.00,'2026-06-27 16:40:00'),
+(3,2,1,'Entregado', 25000.00,'2026-07-05 09:20:00'),
+(4,3,2,'En camino', 25500.00,'2026-07-19 14:05:00'),
+(5,2,1,'Pendiente', 19500.00,'2026-08-03 11:30:00'),
+(6,3,2,'Anulado',   10500.00,'2026-08-07 18:50:00');
+
+-- Detalle de cada pedido
+INSERT INTO detpedido (id_pedido,id_producto,cantidad,precio_unitario) VALUES
+(1, 1,2, 8500.00), (1, 4,1, 4000.00),
+(2,11,1,10500.00), (2, 7,2, 3000.00),
+(3, 9,2, 6500.00), (3, 5,3, 4000.00),
+(4,13,1,12000.00), (4,14,1,13500.00),
+(5, 2,1, 8500.00), (5, 6,2, 4000.00), (5, 8,1, 3000.00),
+(6,12,1,10500.00);
+
+-- Facturas del pago simulado (HU-10 y HU-21). La última queda anulada para
+-- comprobar que los reportes no la toman en cuenta.
+INSERT INTO factura (id_factura,id_usuario,id_pedido,id_metodo_pago,total,estado,referencia_transaccion,fecha_creacion) VALUES
+(1,2,1,1, 21000.00,'Pagada', 'SIM-A1B2C3D4','2026-06-12 10:15:00'),
+(2,3,2,2, 16500.00,'Pagada', 'SIM-E5F6G7H8','2026-06-27 16:40:00'),
+(3,2,3,1, 25000.00,'Pagada', 'SIM-I9J0K1L2','2026-07-05 09:20:00'),
+(4,3,4,3, 25500.00,'Pagada', 'SIM-M3N4O5P6','2026-07-19 14:05:00'),
+(5,2,5,2, 19500.00,'Pagada', 'SIM-Q7R8S9T0','2026-08-03 11:30:00'),
+(6,3,6,1, 10500.00,'Anulada','SIM-U1V2W3X4','2026-08-07 18:50:00');
+
+-- Ventas asociadas a cada factura, con el precio histórico del producto (HU-18)
+INSERT INTO venta (id_factura,id_producto,precio_historico,cantidad,fecha_creacion) VALUES
+(1, 1, 8500.00,2,'2026-06-12 10:15:00'),
+(1, 4, 4000.00,1,'2026-06-12 10:15:00'),
+(2,11,10500.00,1,'2026-06-27 16:40:00'),
+(2, 7, 3000.00,2,'2026-06-27 16:40:00'),
+(3, 9, 6500.00,2,'2026-07-05 09:20:00'),
+(3, 5, 4000.00,3,'2026-07-05 09:20:00'),
+(4,13,12000.00,1,'2026-07-19 14:05:00'),
+(4,14,13500.00,1,'2026-07-19 14:05:00'),
+(5, 2, 8500.00,1,'2026-08-03 11:30:00'),
+(5, 6, 4000.00,2,'2026-08-03 11:30:00'),
+(5, 8, 3000.00,1,'2026-08-03 11:30:00'),
+(6,12,10500.00,1,'2026-08-07 18:50:00');
+
+-- El inventario baja con cada venta efectiva (HU-16), igual que lo hace la
+-- aplicación al confirmar un pedido. Así el reporte de inventario bajo (HU-17)
+-- refleja existencias coherentes con las ventas cargadas.
+UPDATE producto p
+  JOIN (SELECT v.id_producto, SUM(v.cantidad) AS vendidas
+          FROM venta v
+               JOIN factura f ON f.id_factura = v.id_factura
+         WHERE f.estado <> 'Anulada'
+         GROUP BY v.id_producto) t ON t.id_producto = p.id_producto
+   SET p.existencias = GREATEST(CAST(p.existencias AS SIGNED) - CAST(t.vendidas AS SIGNED), 0);

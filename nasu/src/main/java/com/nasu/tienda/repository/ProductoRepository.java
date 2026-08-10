@@ -19,4 +19,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Integer> {
     //Consulta derivada para filtrar productos activos por categoría
     public List<Producto> findByIdCategoriaAndActivoTrue(Integer idCategoria);
 
+    //HU-17: consulta derivada para los productos activos cuyo inventario llegó al umbral
+    public List<Producto> findByActivoTrueAndExistenciasLessThanEqualOrderByExistenciasAsc(Integer umbral);
+
 }

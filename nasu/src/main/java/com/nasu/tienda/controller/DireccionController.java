@@ -2,6 +2,7 @@ package com.nasu.tienda.controller;
 
 import com.nasu.tienda.domain.Direccion;
 import com.nasu.tienda.service.DireccionService;
+import com.nasu.tienda.util.SesionUtil;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.util.Locale;
@@ -49,10 +50,6 @@ public class DireccionController {
     }
 
     private Integer getIdUsuario(HttpSession session) {
-        Object idUsuario = session.getAttribute("idUsuario");
-        if (idUsuario instanceof Integer id) {
-            return id;
-        }
-        return null;
+        return SesionUtil.getIdUsuario(session);
     }
 }

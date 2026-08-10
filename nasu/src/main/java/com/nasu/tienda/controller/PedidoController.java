@@ -2,6 +2,7 @@ package com.nasu.tienda.controller;
 
 import com.nasu.tienda.domain.Pedido;
 import com.nasu.tienda.service.PedidoService;
+import com.nasu.tienda.util.SesionUtil;
 import jakarta.servlet.http.HttpSession;
 import java.util.Locale;
 import java.util.Optional;
@@ -118,10 +119,6 @@ public class PedidoController {
     }
 
     private Integer getIdUsuario(HttpSession session) {
-        Object idUsuario = session.getAttribute("idUsuario");
-        if (idUsuario instanceof Integer id) {
-            return id;
-        }
-        return null;
+        return SesionUtil.getIdUsuario(session);
     }
 }

@@ -97,7 +97,33 @@ Historias de usuario implementadas y funcionales:
 - ✅ **HU-13** — Administrador, edita productos para actualizar precios, imágenes o descripciones.
 - ✅ **HU-14** — Administrador, desactiva productos para evitar su venta cuando ya no estén disponibles.(PARCIAL)
 - ✅ **HU-15** — Administrador, registra la cantidad disponible de cada producto para controlar el inventario.
+- ✅ **HU-17** — Administrador, visualiza los productos con bajo inventario para reabastecerlos oportunamente.
+- ✅ **HU-18** — Administrador, consulta las ventas realizadas para analizar el desempeño del negocio.
+- ✅ **HU-19** — Administrador, genera reportes de ventas por período para apoyar la toma de decisiones.
 - ✅ **HU-21** — Confirmación de compra para verificar que el pedido fue registrado
+
+> HU-19 estaba clasificada como *No tendrá (v1)* en la priorización MoSCoW inicial;
+> se adelantó porque comparte las mismas consultas de la HU-18.
+
+## Pantallas de administración
+
+Las historias HU-12 a HU-19 son de uso exclusivo del administrador. Al iniciar
+sesión, el sistema carga los roles del usuario y habilita el menú
+**Administración** de la barra de navegación:
+
+| Pantalla | Ruta | Historia |
+|---|---|---|
+| Listado de productos | `/producto/listadoAdminTemp` | HU-12 a HU-15 |
+| Inventario bajo | `/reporte/inventario` | HU-17 |
+| Ventas realizadas | `/reporte/ventas` | HU-18 |
+| Reporte por período | `/reporte/periodo` | HU-19 |
+
+El usuario de prueba con rol `ADMIN` es **juan** (ver `db/nasu.sql`). Un cliente
+registrado desde la página de registro obtiene el rol `USER` y no puede entrar a
+estas pantallas.
+
+El detalle de la lógica implementada está en
+[LOGICA_HU_ADMIN.md](LOGICA_HU_ADMIN.md) y [LOGICA_HU_CLIENTE.md](LOGICA_HU_CLIENTE.md).
 
 
 ## Equipo

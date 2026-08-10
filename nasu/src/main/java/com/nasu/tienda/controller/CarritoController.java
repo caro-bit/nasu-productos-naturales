@@ -4,6 +4,7 @@ import com.nasu.tienda.domain.Direccion;
 import com.nasu.tienda.service.CarritoService;
 import com.nasu.tienda.service.DireccionService;
 import com.nasu.tienda.service.MetPagoService;
+import com.nasu.tienda.util.SesionUtil;
 import jakarta.servlet.http.HttpSession;
 import java.util.Locale;
 import org.springframework.context.MessageSource;
@@ -153,10 +154,6 @@ public class CarritoController {
     }
 
     private Integer getIdUsuario(HttpSession session) {
-        Object idUsuario = session.getAttribute("idUsuario");
-        if (idUsuario instanceof Integer id) {
-            return id;
-        }
-        return null;
+        return SesionUtil.getIdUsuario(session);
     }
 }

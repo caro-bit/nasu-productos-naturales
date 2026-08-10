@@ -4,11 +4,14 @@ import com.nasu.tienda.domain.Categoria;
 import com.nasu.tienda.domain.Producto;
 import com.nasu.tienda.service.CategoriaService;
 import com.nasu.tienda.service.ProductoService;
+import com.nasu.tienda.util.ControlAcceso;
+import jakarta.servlet.http.HttpSession;
 import java.util.Locale;
 import java.util.Optional;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -88,7 +91,12 @@ public class ProductoController {
     }
     
     @GetMapping("/listadoAdminTemp")
-    public String listadoAdminTemp(Model model) {
+    public String listadoAdminTemp(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+        String redireccion = validarAdmin(session, redirectAttributes);
+        if (redireccion != null) {
+            return redireccion;
+        }
+
         var productos = productoService.getProductos(false); // incluye inactivos
         model.addAttribute("productos", productos);
         model.addAttribute("totalProductos", productos.size());
@@ -102,14 +110,32 @@ public class ProductoController {
     }
 
     @PostMapping("/guardar")
-    public String guardar(@Valid Producto producto, RedirectAttributes redirectAttributes) {
+    public String guardar(@Valid Producto producto, BindingResult errores,
+            HttpSession session, RedirectAttributes redirectAttributes) {
+
+        String redireccion = validarAdmin(session, redirectAttributes);
+        if (redireccion != null) {
+            return redireccion;
+        }
+
+        //Sin BindingResult, un dato inválido terminaba en la página de error del servidor
+        if (errores.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", errores.getAllErrors().get(0).getDefaultMessage());
+            return "redirect:/producto/listadoAdminTemp";
+        }
+
         productoService.save(producto);
         redirectAttributes.addFlashAttribute("todoOk", messageSource.getMessage("mensaje.actualizado", null, Locale.getDefault()));
         return "redirect:/producto/listadoAdminTemp";
     }
 
     @PostMapping("/eliminar")
-    public String eliminar(@RequestParam Integer idProducto, RedirectAttributes redirectAttributes) {
+    public String eliminar(@RequestParam Integer idProducto, HttpSession session, RedirectAttributes redirectAttributes) {
+        String redireccion = validarAdmin(session, redirectAttributes);
+        if (redireccion != null) {
+            return redireccion;
+        }
+
         String titulo = "todoOk";
         String detalle = "mensaje.eliminado";
         try {
@@ -129,7 +155,14 @@ public class ProductoController {
     }
 
     @GetMapping("/editar/{idProducto}")
-    public String editar(@PathVariable("idProducto") Integer idProducto, Model model, RedirectAttributes redirectAttributes) {
+    public String editar(@PathVariable("idProducto") Integer idProducto, HttpSession session,
+            Model model, RedirectAttributes redirectAttributes) {
+
+        String redireccion = validarAdmin(session, redirectAttributes);
+        if (redireccion != null) {
+            return redireccion;
+        }
+
         Optional<Producto> productoOpt = productoService.getProducto(idProducto);
         if (productoOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", messageSource.getMessage("producto.error01", null, Locale.getDefault()));
@@ -140,5 +173,10 @@ public class ProductoController {
         model.addAttribute("categorias", categorias);
         return "/producto/modificaAdminTemp";
     }
-    
+
+    //El mantenimiento del catálogo es de uso exclusivo del administrador
+    private String validarAdmin(HttpSession session, RedirectAttributes redirectAttributes) {
+        return ControlAcceso.validarAdmin(session, redirectAttributes, messageSource);
+    }
+
 }

@@ -3,6 +3,7 @@ package com.nasu.tienda.controller;
 import com.nasu.tienda.domain.Usuario;
 import com.nasu.tienda.service.PedidoService;
 import com.nasu.tienda.service.UsuarioService;
+import com.nasu.tienda.util.SesionUtil;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.util.Locale;
@@ -88,8 +89,12 @@ public class UsuarioController {
         }
 
         var usuario = usuarioOpt.get();
-        session.setAttribute("usuario", usuario);
-        session.setAttribute("idUsuario", usuario.getIdUsuario());
+        var roles = usuarioService.getRoles(usuario.getIdUsuario());
+        session.setAttribute(SesionUtil.USUARIO, usuario);
+        session.setAttribute(SesionUtil.ID_USUARIO, usuario.getIdUsuario());
+        session.setAttribute(SesionUtil.ROLES, roles);
+        //Se guarda el rol en sesión para habilitar las pantallas de administración
+        session.setAttribute(SesionUtil.ES_ADMIN, roles.contains(UsuarioService.ROL_ADMIN));
         redirectAttributes.addFlashAttribute("todoOk",
                 messageSource.getMessage("usuario.login.ok", new Object[]{usuario.getNombre()}, Locale.getDefault()));
         return "redirect:/";
@@ -98,7 +103,7 @@ public class UsuarioController {
     // HU-02: permite al cliente ver su información y sus compras
     @GetMapping("/perfil")
     public String perfil(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
-        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        Usuario usuario = (Usuario) session.getAttribute(SesionUtil.USUARIO);
         if (usuario == null) {
             redirectAttributes.addFlashAttribute("error",
                     messageSource.getMessage("usuario.login.requerido", null, Locale.getDefault()));
