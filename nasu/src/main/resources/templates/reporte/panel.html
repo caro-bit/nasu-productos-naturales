@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head}"/>
+    <body>
+        <header th:replace="~{general/fragmentos :: header}"/>
+
+        <section th:replace="~{reporte/fragmentos :: menu('panel')}"/>
+
+        <!-- HU-22: panel con estadísticas de ventas e inventario -->
+        <section class="container pt-4">
+
+            <h2>
+                <i class="fa-solid fa-chart-line text-nasu"></i>
+                [[#{reporte.panel.titulo}]]
+            </h2>
+
+            <p class="text-muted">
+                [[#{reporte.panel.texto}]]
+            </p>
+
+            <p class="fw-semibold">
+                <i class="fa-solid fa-calendar-days text-nasu"></i>
+                [[#{reporte.periodo.rango}]]
+
+                <span th:text="${#temporals.format(desde, 'dd/MM/yyyy')}">
+                    01/01/2026
+                </span>
+
+                &ndash;
+
+                <span th:text="${#temporals.format(hasta, 'dd/MM/yyyy')}">
+                    31/01/2026
+                </span>
+            </p>
+
+            <!-- Estadísticas principales -->
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-5 g-3 mb-4">
+
+                <div th:replace="~{reporte/fragmentos :: indicador(
+                     'fa-file-invoice-dollar',
+                     #{reporte.facturas},
+                     ${resumen.facturas})}"/>
+
+                <div th:replace="~{reporte/fragmentos :: indicador(
+                     'fa-cubes',
+                     #{reporte.unidades},
+                     ${resumen.unidades})}"/>
+
+                <div th:replace="~{reporte/fragmentos :: indicador(
+                     'fa-sack-dollar',
+                     #{reporte.monto},
+                     ${#numbers.formatCurrency(resumen.monto)})}"/>
+
+                <div th:replace="~{reporte/fragmentos :: indicador(
+                     'fa-triangle-exclamation',
+                     #{reporte.panel.inventarioBajo},
+                     ${totalBajo})}"/>
+
+                <div th:replace="~{reporte/fragmentos :: indicador(
+                     'fa-circle-xmark',
+                     #{reporte.inventario.agotados},
+                     ${totalAgotados})}"/>
+
+            </div>
+
+            <div class="row g-4">
+
+                <!-- Ventas por producto -->
+                <div class="col-12 col-xl-6">
+
+                    <div class="card h-100">
+
+                        <div class="card-header bg-nasu text-white">
+                            <h5 class="mb-0">
+                                [[#{reporte.periodo.porProducto}]]
+                            </h5>
+                        </div>
+
+                        <div class="card-body p-0 table-responsive">
+
+                            <table th:if="${!ventasPorProducto.empty}"
+                                   class="table table-striped align-middle mb-0">
+
+                                <thead>
+                                    <tr>
+                                        <th>[[#{producto.descripcion}]]</th>
+
+                                        <th class="text-center">
+                                            [[#{reporte.unidades}]]
+                                        </th>
+
+                                        <th class="text-end">
+                                            [[#{reporte.monto}]]
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr th:each="p : ${ventasPorProducto}">
+
+                                        <td>[[${p.producto}]]</td>
+
+                                        <td class="text-center">
+                                            [[${p.unidades}]]
+                                        </td>
+
+                                        <td class="text-end fw-bold">
+                                            [[${#numbers.formatCurrency(p.monto)}]]
+                                        </td>
+
+                                    </tr>
+                                </tbody>
+
+                            </table>
+
+                            <div th:if="${ventasPorProducto.empty}">
+                                <div th:replace="~{reporte/fragmentos :: sinDatos(
+                                     #{reporte.periodo.sinVentas})}"/>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inventario bajo -->
+                <div class="col-12 col-xl-6">
+
+                    <div class="card h-100">
+
+                        <div class="card-header bg-nasu text-white">
+                            <h5 class="mb-0">
+                                [[#{reporte.inventario.listado}]]
+                            </h5>
+                        </div>
+
+                        <div class="card-body p-0 table-responsive">
+
+                            <table th:if="${!productosBajo.empty}"
+                                   class="table table-striped align-middle mb-0">
+
+                                <thead>
+                                    <tr>
+                                        <th>[[#{producto.descripcion}]]</th>
+
+                                        <th class="text-center">
+                                            [[#{producto.existencias}]]
+                                        </th>
+
+                                        <th class="text-end">
+                                            [[#{producto.precio}]]
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr th:each="p : ${productosBajo}">
+
+                                        <td>[[${p.descripcion}]]</td>
+
+                                        <td class="text-center fw-bold">
+                                            [[${p.existencias}]]
+                                        </td>
+
+                                        <td class="text-end">
+                                            [[${#numbers.formatCurrency(p.precio)}]]
+                                        </td>
+
+                                    </tr>
+                                </tbody>
+
+                            </table>
+
+                            <div th:if="${productosBajo.empty}">
+                                <div th:replace="~{reporte/fragmentos :: sinDatos(
+                                     #{reporte.inventario.sinAlertas})}"/>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <section th:replace="~{general/fragmentos :: mostrarToast}"/>
+        <footer th:replace="~{general/fragmentos :: footer}"/>
+    </body>
+</html>

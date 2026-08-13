@@ -1,30 +1,42 @@
 <!-- Fragmento 1: menú de navegación entre las pantallas de administración -->
 <section th:fragment="menu(activo)" class="container pt-4">
     <ul class="nav nav-pills gap-2">
+
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${activo == 'panel'} ? 'active bg-nasu' : 'text-nasu'"
+               th:href="@{/reporte/panel}">
+                <i class="fa-solid fa-chart-pie"></i> [[#{reporte.panel.titulo}]]
+            </a>
+        </li>
+
         <li class="nav-item">
             <a class="nav-link" th:classappend="${activo == 'catalogo'} ? 'active bg-nasu' : 'text-nasu'"
                th:href="@{/producto/listadoAdminTemp}">
                 <i class="fa-solid fa-boxes-stacked"></i> [[#{producto.listado}]]
             </a>
         </li>
+
         <li class="nav-item">
             <a class="nav-link" th:classappend="${activo == 'inventario'} ? 'active bg-nasu' : 'text-nasu'"
                th:href="@{/reporte/inventario}">
                 <i class="fa-solid fa-triangle-exclamation"></i> [[#{reporte.inventario.titulo}]]
             </a>
         </li>
+
         <li class="nav-item">
             <a class="nav-link" th:classappend="${activo == 'ventas'} ? 'active bg-nasu' : 'text-nasu'"
                th:href="@{/reporte/ventas}">
                 <i class="fa-solid fa-receipt"></i> [[#{reporte.ventas.titulo}]]
             </a>
         </li>
+
         <li class="nav-item">
             <a class="nav-link" th:classappend="${activo == 'periodo'} ? 'active bg-nasu' : 'text-nasu'"
                th:href="@{/reporte/periodo}">
                 <i class="fa-solid fa-chart-line"></i> [[#{reporte.periodo.titulo}]]
             </a>
         </li>
+
     </ul>
 </section>
 
@@ -45,14 +57,17 @@
         <label class="form-label mb-1">[[#{reporte.desde}]]</label>
         <input type="date" name="desde" class="form-control" th:value="${desde}"/>
     </div>
+
     <div class="col-6 col-md-3">
         <label class="form-label mb-1">[[#{reporte.hasta}]]</label>
         <input type="date" name="hasta" class="form-control" th:value="${hasta}"/>
     </div>
+
     <div class="col-12 col-md-auto">
         <button type="submit" class="btn btn-nasu">
             <i class="fa-solid fa-filter"></i> [[#{reporte.filtrar}]]
         </button>
+
         <a th:href="@{${url}}" class="btn btn-outline-nasu">
             <i class="fa-solid fa-rotate-left"></i> [[#{reporte.limpiar}]]
         </a>
