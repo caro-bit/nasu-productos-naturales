@@ -1,20 +1,18 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
     <head th:replace="~{general/fragmentos :: head}"/>
     <body>
         <header th:replace="~{general/fragmentos :: header}"/>
 
         <section class="container pt-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2>[[#{producto.listado}]] (ListadoAdminTemp)</h2>
+                <h2>[[#{producto.listado}]]</h2>
                 <button type="button" class="btn btn-nasu" data-bs-toggle="modal" data-bs-target="#agregarProductoModal">
                     <i class="fa-solid fa-plus"></i> [[#{producto.agregar}]]
                 </button>
             </div>
             <p class="text-muted">[[${totalProductos}]] [[#{producto.encontrados}]]</p>
-            <p class="container pt-4"> SECCION TEMPORALMENTE COLOCADA EN ESTA VISTA</p>
-
             <div class="card p-2">
                 <div class="card-header bg-nasu text-white"><h5 class="mb-0">[[#{producto.listado}]]</h5></div>
                 <div class="card-body p-0 table-responsive">

@@ -365,7 +365,7 @@ insert into usuario_rol (id_usuario, id_rol) values
 INSERT INTO ruta (ruta, id_rol) VALUES
 ('/producto/nuevo', 1),
 ('/producto/guardar', 1),
-('/producto/listadoAdminTemp', 1),
+('/producto/listadoAdmin', 1),
 ('/producto/editar/**', 1),
 ('/producto/eliminar', 1),
 ('/reporte/**', 1),
@@ -400,13 +400,17 @@ INSERT INTO ruta (ruta,requiere_rol) VALUES
 ('/errores/**',false),
 ('/login',false),
 ('/logout',false),
+('/registro',false),
 ('/registro/**',false),
 ('/403',false),
 ('/fav/**',false),
 ('/js/**',false),
 ('/css/**',false),
 ('/img/**',false),
-('/webjars/**',false);
+('/webjars/**',false),
+('/carrito',false),
+('/carrito/listado',false),
+('/carrito/checkout',false);
 
 -- --- Sección de datos de ventas de ejemplo ---
 -- Estos datos permiten probar la consulta de ventas (HU-18) y el reporte por
