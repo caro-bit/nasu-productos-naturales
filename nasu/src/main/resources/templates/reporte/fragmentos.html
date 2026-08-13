@@ -1,0 +1,66 @@
+<!-- Fragmento 1: menú de navegación entre las pantallas de administración -->
+<section th:fragment="menu(activo)" class="container pt-4">
+    <ul class="nav nav-pills gap-2">
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${activo == 'catalogo'} ? 'active bg-nasu' : 'text-nasu'"
+               th:href="@{/producto/listadoAdminTemp}">
+                <i class="fa-solid fa-boxes-stacked"></i> [[#{producto.listado}]]
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${activo == 'inventario'} ? 'active bg-nasu' : 'text-nasu'"
+               th:href="@{/reporte/inventario}">
+                <i class="fa-solid fa-triangle-exclamation"></i> [[#{reporte.inventario.titulo}]]
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${activo == 'ventas'} ? 'active bg-nasu' : 'text-nasu'"
+               th:href="@{/reporte/ventas}">
+                <i class="fa-solid fa-receipt"></i> [[#{reporte.ventas.titulo}]]
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${activo == 'periodo'} ? 'active bg-nasu' : 'text-nasu'"
+               th:href="@{/reporte/periodo}">
+                <i class="fa-solid fa-chart-line"></i> [[#{reporte.periodo.titulo}]]
+            </a>
+        </li>
+    </ul>
+</section>
+
+<!-- Fragmento 2: tarjeta reutilizable para mostrar un indicador del negocio -->
+<div th:fragment="indicador(icono, titulo, valor)" class="col">
+    <div class="card h-100 text-center shadow-sm">
+        <div class="card-body py-3">
+            <i class="fa-solid fa-2x text-nasu mb-2" th:classappend="${icono}"></i>
+            <p class="text-muted small mb-1">[[${titulo}]]</p>
+            <p class="h4 mb-0">[[${valor}]]</p>
+        </div>
+    </div>
+</div>
+
+<!-- Fragmento 3: filtro por rango de fechas usado en las consultas de ventas -->
+<form th:fragment="filtroFechas(url)" method="get" th:action="@{${url}}" class="row g-2 align-items-end mb-4">
+    <div class="col-6 col-md-3">
+        <label class="form-label mb-1">[[#{reporte.desde}]]</label>
+        <input type="date" name="desde" class="form-control" th:value="${desde}"/>
+    </div>
+    <div class="col-6 col-md-3">
+        <label class="form-label mb-1">[[#{reporte.hasta}]]</label>
+        <input type="date" name="hasta" class="form-control" th:value="${hasta}"/>
+    </div>
+    <div class="col-12 col-md-auto">
+        <button type="submit" class="btn btn-nasu">
+            <i class="fa-solid fa-filter"></i> [[#{reporte.filtrar}]]
+        </button>
+        <a th:href="@{${url}}" class="btn btn-outline-nasu">
+            <i class="fa-solid fa-rotate-left"></i> [[#{reporte.limpiar}]]
+        </a>
+    </div>
+</form>
+
+<!-- Fragmento 4: aviso que se muestra cuando una consulta no devuelve datos -->
+<div th:fragment="sinDatos(mensaje)" class="text-center p-5">
+    <i class="fa-solid fa-seedling fa-2x text-nasu mb-2"></i>
+    <p class="lead mb-0">[[${mensaje}]]</p>
+</div>

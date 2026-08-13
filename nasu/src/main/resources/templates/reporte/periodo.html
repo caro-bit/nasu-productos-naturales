@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head}"/>
+    <body>
+        <header th:replace="~{general/fragmentos :: header}"/>
+
+        <section th:replace="~{reporte/fragmentos :: menu('periodo')}"/>
+
+        <!-- HU-19: reporte de ventas del período seleccionado -->
+        <section class="container pt-4">
+            <h2><i class="fa-solid fa-chart-line text-nasu"></i> [[#{reporte.periodo.titulo}]]</h2>
+            <p class="text-muted">[[#{reporte.periodo.texto}]]</p>
+
+            <form th:replace="~{reporte/fragmentos :: filtroFechas('/reporte/periodo')}"/>
+
+            <p class="fw-semibold">
+                <i class="fa-solid fa-calendar-days text-nasu"></i>
+                [[#{reporte.periodo.rango}]]
+                <span th:text="${#temporals.format(desde, 'dd/MM/yyyy')}">01/01/2026</span> &ndash;
+                <span th:text="${#temporals.format(hasta, 'dd/MM/yyyy')}">31/01/2026</span>
+            </p>
+
+            <div class="row row-cols-2 row-cols-lg-4 g-3 mb-4">
+                <div th:replace="~{reporte/fragmentos :: indicador('fa-file-invoice-dollar', #{reporte.facturas}, ${resumen.facturas})}"/>
+                <div th:replace="~{reporte/fragmentos :: indicador('fa-cubes', #{reporte.unidades}, ${resumen.unidades})}"/>
+                <div th:replace="~{reporte/fragmentos :: indicador('fa-sack-dollar', #{reporte.monto}, ${#numbers.formatCurrency(resumen.monto)})}"/>
+                <div th:replace="~{reporte/fragmentos :: indicador('fa-calculator', #{reporte.ticket}, ${#numbers.formatCurrency(ticketPromedio)})}"/>
+            </div>
+
+            <div class="row g-4">
+                <!-- Ventas agrupadas por producto: muestra qué se vende más en el período -->
+                <div class="col-12 col-xl-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-nasu text-white">
+                            <h5 class="mb-0">[[#{reporte.periodo.porProducto}]]</h5>
+                        </div>
+                        <div class="card-body p-0 table-responsive">
+                            <table th:if="${!ventasPorProducto.empty}" class="table table-striped align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>[[#{producto.descripcion}]]</th>
+                                        <th>[[#{producto.categoria}]]</th>
+                                        <th class="text-center">[[#{reporte.unidades}]]</th>
+                                        <th class="text-end">[[#{reporte.monto}]]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="p : ${ventasPorProducto}">
+                                        <td>[[${p.producto}]]</td>
+                                        <td>[[${p.categoria}]]</td>
+                                        <td class="text-center">[[${p.unidades}]]</td>
+                                        <td class="text-end fw-bold">[[${#numbers.formatCurrency(p.monto)}]]</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div th:if="${ventasPorProducto.empty}">
+                                <div th:replace="~{reporte/fragmentos :: sinDatos(#{reporte.periodo.sinVentas})}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ventas agrupadas por día: muestra el comportamiento del período -->
+                <div class="col-12 col-xl-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-nasu text-white">
+                            <h5 class="mb-0">[[#{reporte.periodo.porDia}]]</h5>
+                        </div>
+                        <div class="card-body p-0 table-responsive">
+                            <table th:if="${!ventasPorDia.empty}" class="table table-striped align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>[[#{pedido.fecha}]]</th>
+                                        <th class="text-center">[[#{reporte.facturas}]]</th>
+                                        <th class="text-center">[[#{reporte.unidades}]]</th>
+                                        <th class="text-end">[[#{reporte.monto}]]</th>
+                                        <th style="width: 30%;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="d : ${ventasPorDia}">
+                                        <td>[[${d.fecha}]]</td>
+                                        <td class="text-center">[[${d.facturas}]]</td>
+                                        <td class="text-center">[[${d.unidades}]]</td>
+                                        <td class="text-end fw-bold">[[${#numbers.formatCurrency(d.monto)}]]</td>
+                                        <td>
+                                            <!-- Barra comparativa contra el mejor día del período -->
+                                            <div class="progress" th:if="${montoMaximoDia > 0}" style="height: 8px;">
+                                                <div class="progress-bar bg-nasu" role="progressbar"
+                                                     th:style="'width:' + ${#numbers.formatInteger(d.monto.doubleValue() * 100 / montoMaximoDia, 1)} + '%'"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div th:if="${ventasPorDia.empty}">
+                                <div th:replace="~{reporte/fragmentos :: sinDatos(#{reporte.periodo.sinVentas})}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-muted small mt-3">
+                <i class="fa-solid fa-circle-info"></i> [[#{reporte.periodo.nota}]]
+            </p>
+        </section>
+
+        <section th:replace="~{general/fragmentos :: mostrarToast}"/>
+        <footer th:replace="~{general/fragmentos :: footer}"/>
+    </body>
+</html>

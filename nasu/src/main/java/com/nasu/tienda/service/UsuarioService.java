@@ -2,6 +2,7 @@ package com.nasu.tienda.service;
 
 import com.nasu.tienda.domain.Usuario;
 import com.nasu.tienda.repository.UsuarioRepository;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UsuarioService {
+
+    //Nombre del rol administrador dentro de la tabla rol
+    public static final String ROL_ADMIN = "ADMIN";
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
@@ -60,5 +64,16 @@ public class UsuarioService {
             return Optional.empty();
         }
         return Optional.of(usuario);
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getRoles(Integer idUsuario) {
+        return usuarioRepository.findRolesByIdUsuario(idUsuario);
+    }
+
+    //Permite validar en los controladores si el usuario en sesión administra el negocio
+    @Transactional(readOnly = true)
+    public boolean esAdministrador(Integer idUsuario) {
+        return getRoles(idUsuario).contains(ROL_ADMIN);
     }
 }

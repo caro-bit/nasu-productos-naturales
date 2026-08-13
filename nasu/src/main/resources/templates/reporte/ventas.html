@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head}"/>
+    <body>
+        <header th:replace="~{general/fragmentos :: header}"/>
+
+        <section th:replace="~{reporte/fragmentos :: menu('ventas')}"/>
+
+        <!-- HU-18: detalle de las ventas realizadas -->
+        <section class="container pt-4">
+            <h2><i class="fa-solid fa-receipt text-nasu"></i> [[#{reporte.ventas.titulo}]]</h2>
+            <p class="text-muted">[[#{reporte.ventas.texto}]]</p>
+
+            <form th:replace="~{reporte/fragmentos :: filtroFechas('/reporte/ventas')}"/>
+
+            <div class="row row-cols-1 row-cols-sm-3 g-3 mb-4">
+                <div th:replace="~{reporte/fragmentos :: indicador('fa-file-invoice-dollar', #{reporte.facturas}, ${resumen.facturas})}"/>
+                <div th:replace="~{reporte/fragmentos :: indicador('fa-cubes', #{reporte.unidades}, ${resumen.unidades})}"/>
+                <div th:replace="~{reporte/fragmentos :: indicador('fa-sack-dollar', #{reporte.monto}, ${#numbers.formatCurrency(resumen.monto)})}"/>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-nasu text-white">
+                    <h5 class="mb-0">[[#{reporte.ventas.detalle}]]</h5>
+                </div>
+                <div class="card-body p-0 table-responsive">
+                    <table th:if="${!ventas.empty}" class="table table-striped table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>[[#{factura.numero}]]</th>
+                                <th>[[#{pedido.numero}]]</th>
+                                <th>[[#{pedido.fecha}]]</th>
+                                <th>[[#{reporte.cliente}]]</th>
+                                <th>[[#{producto.descripcion}]]</th>
+                                <th>[[#{producto.categoria}]]</th>
+                                <th class="text-center">[[#{producto.cantidad}]]</th>
+                                <th class="text-end">[[#{producto.precio}]]</th>
+                                <th class="text-end">[[#{carrito.subtotal}]]</th>
+                                <th class="text-center">[[#{factura.estado}]]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="v : ${ventas}">
+                                <td># [[${v.idFactura}]]</td>
+                                <td># [[${v.idPedido}]]</td>
+                                <td>[[${v.fecha}]]</td>
+                                <td>[[${v.cliente}]]</td>
+                                <td>[[${v.producto}]]</td>
+                                <td>[[${v.categoria}]]</td>
+                                <td class="text-center">[[${v.cantidad}]]</td>
+                                <td class="text-end">[[${#numbers.formatCurrency(v.precioHistorico)}]]</td>
+                                <td class="text-end fw-bold">[[${#numbers.formatCurrency(v.subtotal)}]]</td>
+                                <td class="text-center"><span class="badge bg-nasu">[[${v.estadoFactura}]]</span></td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-light">
+                                <th colspan="8" class="text-end">[[#{carrito.total}]]</th>
+                                <th class="text-end">[[${#numbers.formatCurrency(resumen.monto)}]]</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <div th:if="${ventas.empty}">
+                        <div th:replace="~{reporte/fragmentos :: sinDatos(#{reporte.ventas.sinVentas})}"/>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section th:replace="~{general/fragmentos :: mostrarToast}"/>
+        <footer th:replace="~{general/fragmentos :: footer}"/>
+    </body>
+</html>
