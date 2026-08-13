@@ -90,8 +90,8 @@ public class ProductoController {
         return "/producto/detalle";
     }
     
-    @GetMapping("/listadoAdminTemp")
-    public String listadoAdminTemp(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+    @GetMapping("/listadoAdmin")
+    public String listadoAdmin(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
         String redireccion = validarAdmin(session, redirectAttributes);
         if (redireccion != null) {
             return redireccion;
@@ -106,7 +106,7 @@ public class ProductoController {
                 .collect(Collectors.toMap(Categoria::getIdCategoria, c -> c));
         model.addAttribute("categoriasMap", categoriasMap);
         model.addAttribute("producto", new Producto());
-        return "/producto/listadoAdminTemp";
+        return "/producto/listadoAdmin";
     }
 
     @PostMapping("/guardar")
@@ -121,12 +121,12 @@ public class ProductoController {
         //Sin BindingResult, un dato inválido terminaba en la página de error del servidor
         if (errores.hasErrors()) {
             redirectAttributes.addFlashAttribute("error", errores.getAllErrors().get(0).getDefaultMessage());
-            return "redirect:/producto/listadoAdminTemp";
+            return "redirect:/producto/listadoAdmin";
         }
 
         productoService.save(producto);
         redirectAttributes.addFlashAttribute("todoOk", messageSource.getMessage("mensaje.actualizado", null, Locale.getDefault()));
-        return "redirect:/producto/listadoAdminTemp";
+        return "redirect:/producto/listadoAdmin";
     }
 
     @PostMapping("/eliminar")
@@ -151,7 +151,7 @@ public class ProductoController {
             detalle = "producto.error03";
         }
         redirectAttributes.addFlashAttribute(titulo, messageSource.getMessage(detalle, null, Locale.getDefault()));
-        return "redirect:/producto/listadoAdminTemp";
+        return "redirect:/producto/listadoAdmin";
     }
 
     @GetMapping("/editar/{idProducto}")
@@ -166,12 +166,12 @@ public class ProductoController {
         Optional<Producto> productoOpt = productoService.getProducto(idProducto);
         if (productoOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", messageSource.getMessage("producto.error01", null, Locale.getDefault()));
-            return "redirect:/producto/listadoAdminTemp";
+            return "redirect:/producto/listadoAdmin";
         }
         model.addAttribute("producto", productoOpt.get());
         var categorias = categoriaService.getCategorias(true);
         model.addAttribute("categorias", categorias);
-        return "/producto/modificaAdminTemp";
+        return "/producto/modificaAdmin";
     }
 
     //El mantenimiento del catálogo es de uso exclusivo del administrador

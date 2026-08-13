@@ -76,30 +76,6 @@ public class UsuarioController {
         return "/usuario/login";
     }
 
-    // HU-02: valida las credenciales y guarda el cliente en sesión
-    @PostMapping("/login")
-    public String autenticar(@RequestParam String username, @RequestParam String password,
-            HttpSession session, RedirectAttributes redirectAttributes) {
-
-        var usuarioOpt = usuarioService.validarLogin(username, password);
-        if (usuarioOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error",
-                    messageSource.getMessage("usuario.login.error", null, Locale.getDefault()));
-            return "redirect:/login";
-        }
-
-        var usuario = usuarioOpt.get();
-        var roles = usuarioService.getRoles(usuario.getIdUsuario());
-        session.setAttribute(SesionUtil.USUARIO, usuario);
-        session.setAttribute(SesionUtil.ID_USUARIO, usuario.getIdUsuario());
-        session.setAttribute(SesionUtil.ROLES, roles);
-        //Se guarda el rol en sesión para habilitar las pantallas de administración
-        session.setAttribute(SesionUtil.ES_ADMIN, roles.contains(UsuarioService.ROL_ADMIN));
-        redirectAttributes.addFlashAttribute("todoOk",
-                messageSource.getMessage("usuario.login.ok", new Object[]{usuario.getNombre()}, Locale.getDefault()));
-        return "redirect:/";
-    }
-
     // HU-02: permite al cliente ver su información y sus compras
     @GetMapping("/perfil")
     public String perfil(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
@@ -115,11 +91,4 @@ public class UsuarioController {
         return "/usuario/perfil";
     }
 
-    @GetMapping("/logout")
-    public String cerrarSesion(HttpSession session, RedirectAttributes redirectAttributes) {
-        session.invalidate();
-        redirectAttributes.addFlashAttribute("todoOk",
-                messageSource.getMessage("usuario.logout.ok", null, Locale.getDefault()));
-        return "redirect:/";
-    }
 }

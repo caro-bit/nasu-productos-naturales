@@ -95,7 +95,7 @@ Historias de usuario implementadas y funcionales:
 - ✅ **HU-11** — Consultar el historial de pedidos para dar seguimiento a compras anteriores
 - ✅ **HU-12** — Administrador, registra nuevos productos para mantener actualizado el catálogo.
 - ✅ **HU-13** — Administrador, edita productos para actualizar precios, imágenes o descripciones.
-- ✅ **HU-14** — Administrador, desactiva productos para evitar su venta cuando ya no estén disponibles.(PARCIAL)
+- ✅ **HU-14** — Administrador, desactiva productos para evitar su venta cuando ya no estén disponibles.
 - ✅ **HU-15** — Administrador, registra la cantidad disponible de cada producto para controlar el inventario.
 - ✅ **HU-17** — Administrador, visualiza los productos con bajo inventario para reabastecerlos oportunamente.
 - ✅ **HU-18** — Administrador, consulta las ventas realizadas para analizar el desempeño del negocio.
@@ -105,15 +105,30 @@ Historias de usuario implementadas y funcionales:
 > HU-19 estaba clasificada como *No tendrá (v1)* en la priorización MoSCoW inicial;
 > se adelantó porque comparte las mismas consultas de la HU-18.
 
+## Autenticación y control de acceso
+
+El inicio de sesión, el cierre de sesión y las reglas de acceso por rol están
+implementados con **Spring Security**:
+
+- `UsuarioDetailsService` valida las credenciales contra la tabla `usuario`
+  (contraseñas cifradas con BCrypt) y carga los roles del usuario.
+- La tabla `ruta` (columnas `ruta`, `requiere_rol`, `id_rol`) define, para
+  cada URL, si es pública o si requiere un rol específico. `SecurityConfig`
+  lee esa tabla al arrancar la aplicación y arma las reglas de acceso.
+- Si agregas un endpoint nuevo que deba ser público o restringido a un rol,
+  **debes insertar la fila correspondiente en la tabla `ruta`** (ver
+  `db/nasu.sql`) y reiniciar la aplicación; de lo contrario la ruta queda
+  bloqueada por la regla de respaldo (requiere estar autenticado).
+
 ## Pantallas de administración
 
 Las historias HU-12 a HU-19 son de uso exclusivo del administrador. Al iniciar
-sesión, el sistema carga los roles del usuario y habilita el menú
-**Administración** de la barra de navegación:
+sesión, Spring Security carga los roles del usuario desde la base de datos y
+habilita el menú **Administración** de la barra de navegación:
 
 | Pantalla | Ruta | Historia |
 |---|---|---|
-| Listado de productos | `/producto/listadoAdminTemp` | HU-12 a HU-15 |
+| Listado de productos | `/producto/listadoAdmin` | HU-12 a HU-15 |
 | Inventario bajo | `/reporte/inventario` | HU-17 |
 | Ventas realizadas | `/reporte/ventas` | HU-18 |
 | Reporte por período | `/reporte/periodo` | HU-19 |
@@ -121,10 +136,6 @@ sesión, el sistema carga los roles del usuario y habilita el menú
 El usuario de prueba con rol `ADMIN` es **juan** (ver `db/nasu.sql`). Un cliente
 registrado desde la página de registro obtiene el rol `USER` y no puede entrar a
 estas pantallas.
-
-El detalle de la lógica implementada está en
-[LOGICA_HU_ADMIN.md](LOGICA_HU_ADMIN.md) y [LOGICA_HU_CLIENTE.md](LOGICA_HU_CLIENTE.md).
-
 
 ## Equipo
 Ballkiria Monge Espinoza  
