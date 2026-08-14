@@ -29,7 +29,10 @@
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
                             <i class="fa-solid fa-gear"></i> [[#{plantilla.administracion}]]</a>
                         <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/reporte/panel}">[[#{reporte.panel.titulo}]]</a></li>
+                            <li><hr class="dropdown-divider"/></li>
                             <li><a class="dropdown-item" th:href="@{/producto/listadoAdmin}">[[#{producto.listado}]]</a></li>
+                            <li><a class="dropdown-item" th:href="@{/usuario/listado}">[[#{usuario.listado}]]</a></li>
                             <li><hr class="dropdown-divider"/></li>
                             <li><a class="dropdown-item" th:href="@{/reporte/inventario}">[[#{reporte.inventario.titulo}]]</a></li>
                             <li><a class="dropdown-item" th:href="@{/reporte/ventas}">[[#{reporte.ventas.titulo}]]</a></li>

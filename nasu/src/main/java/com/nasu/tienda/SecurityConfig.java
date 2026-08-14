@@ -61,7 +61,7 @@ public class SecurityConfig {
                 .deleteCookies("JSESSIONID")
                 .permitAll()
         ).exceptionHandling(exceptions -> exceptions
-                .accessDeniedPage("/")
+                .accessDeniedPage("/acceso-denegado")
         );
 
         return http.build();

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head}"/>
+    <body>
+        <header th:replace="~{general/fragmentos :: header}"/>
+
+        <section th:replace="~{reporte/fragmentos :: menu('usuarios')}"/>
+
+        <!-- HU-20: administración de usuarios y de sus permisos -->
+        <section class="container pt-4">
+            <h2><i class="fa-solid fa-users-gear text-nasu"></i> [[#{usuario.listado}]]</h2>
+            <p class="text-muted">[[#{usuario.listado.texto}]]</p>
+
+            <div class="card">
+                <div class="card-header bg-nasu text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">[[#{usuario.listado}]]</h5>
+                    <span class="badge text-bg-light">[[${totalUsuarios}]]</span>
+                </div>
+                <div class="card-body p-0 table-responsive">
+                    <table class="table table-striped table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>[[#{usuario.username}]]</th>
+                                <th>[[#{usuario.nombre}]]</th>
+                                <th>[[#{usuario.correo}]]</th>
+                                <th>[[#{usuario.roles}]]</th>
+                                <th class="text-center">[[#{producto.activo}]]</th>
+                                <th style="min-width: 16rem;">[[#{usuario.permisos}]]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="u : ${usuarios}">
+                                <td>
+                                    [[${u.username}]]
+                                    <span th:if="${u.idUsuario == idUsuarioActual}"
+                                          class="badge text-bg-secondary">[[#{usuario.esUsted}]]</span>
+                                </td>
+                                <td>[[${u.nombre}]] [[${u.apellidos}]]</td>
+                                <td class="small">[[${u.correo}]]</td>
+                                <td>
+                                    <span th:if="${#strings.isEmpty(rolesPorUsuario.get(u.idUsuario))}"
+                                          class="text-muted small">[[#{usuario.sinRoles}]]</span>
+                                    <span th:each="r : ${#strings.arraySplit(rolesPorUsuario.get(u.idUsuario), ', ')}"
+                                          th:if="${!#strings.isEmpty(r)}"
+                                          class="badge bg-nasu me-1">[[${r}]]</span>
+                                </td>
+                                <td class="text-center">
+                                    <span th:if="${u.activo}" class="badge text-bg-success">[[#{usuario.activo}]]</span>
+                                    <span th:unless="${u.activo}" class="badge text-bg-danger">[[#{usuario.inactivo}]]</span>
+                                </td>
+                                <td>
+                                    <!-- Un solo formulario con dos destinos: asignar o quitar el rol elegido -->
+                                    <form method="post" th:action="@{/usuario/rol/asignar}" class="d-flex gap-1 mb-1">
+                                        <input type="hidden" name="idUsuario" th:value="${u.idUsuario}"/>
+                                        <select name="idRol" class="form-select form-select-sm">
+                                            <option th:each="rol : ${roles}"
+                                                    th:value="${rol.idRol}">[[${rol.rol}]]</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-nasu" th:title="#{usuario.rol.asignar}">
+                                            <i class="fa-solid fa-plus"></i>
+                                        </button>
+                                        <button type="submit" class="btn btn-sm btn-outline-nasu"
+                                                th:attr="formaction=@{/usuario/rol/quitar}" th:title="#{usuario.rol.quitar}">
+                                            <i class="fa-solid fa-minus"></i>
+                                        </button>
+                                    </form>
+                                    <form method="post" th:action="@{/usuario/estado}">
+                                        <input type="hidden" name="idUsuario" th:value="${u.idUsuario}"/>
+                                        <button type="submit" class="btn btn-sm w-100"
+                                                th:classappend="${u.activo} ? 'btn-outline-danger' : 'btn-outline-success'">
+                                            <i class="fa-solid" th:classappend="${u.activo} ? 'fa-user-slash' : 'fa-user-check'"></i>
+                                            <span th:text="${u.activo} ? #{usuario.desactivar} : #{usuario.activar}"></span>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <p class="text-muted small mt-3">
+                <i class="fa-solid fa-shield-halved"></i> [[#{usuario.listado.nota}]]
+            </p>
+        </section>
+
+        <section th:replace="~{general/fragmentos :: mostrarToast}"/>
+        <footer th:replace="~{general/fragmentos :: footer}"/>
+    </body>
+</html>

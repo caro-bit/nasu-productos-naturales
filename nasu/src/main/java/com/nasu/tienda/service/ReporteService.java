@@ -81,6 +81,14 @@ public class ReporteService {
         return ventaRepository.findVentasPorDia(inicioDelDia(desde), finDelDia(hasta));
     }
 
+    //HU-22: productos más vendidos de todo el histórico, para el panel
+    @Transactional(readOnly = true)
+    public List<VentaPorProducto> getTopProductos(int limite) {
+        return getVentasPorProducto(FECHA_MINIMA, LocalDate.now()).stream()
+                .limit(limite)
+                .toList();
+    }
+
     //Monto promedio por factura, útil para comparar períodos entre sí
     public BigDecimal calcularTicketPromedio(ResumenVentas resumen) {
         if (resumen == null || resumen.getFacturas() == null || resumen.getFacturas() == 0) {

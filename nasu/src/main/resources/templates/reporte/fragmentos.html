@@ -2,6 +2,12 @@
 <section th:fragment="menu(activo)" class="container pt-4">
     <ul class="nav nav-pills gap-2">
         <li class="nav-item">
+            <a class="nav-link" th:classappend="${activo == 'panel'} ? 'active bg-nasu' : 'text-nasu'"
+               th:href="@{/reporte/panel}">
+                <i class="fa-solid fa-gauge"></i> [[#{reporte.panel.titulo}]]
+            </a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" th:classappend="${activo == 'catalogo'} ? 'active bg-nasu' : 'text-nasu'"
                th:href="@{/producto/listadoAdmin}">
                 <i class="fa-solid fa-boxes-stacked"></i> [[#{producto.listado}]]
@@ -23,6 +29,12 @@
             <a class="nav-link" th:classappend="${activo == 'periodo'} ? 'active bg-nasu' : 'text-nasu'"
                th:href="@{/reporte/periodo}">
                 <i class="fa-solid fa-chart-line"></i> [[#{reporte.periodo.titulo}]]
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${activo == 'usuarios'} ? 'active bg-nasu' : 'text-nasu'"
+               th:href="@{/usuario/listado}">
+                <i class="fa-solid fa-users-gear"></i> [[#{usuario.listado}]]
             </a>
         </li>
     </ul>

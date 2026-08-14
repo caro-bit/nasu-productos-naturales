@@ -1,7 +1,10 @@
 package com.nasu.tienda.controller;
 
 import com.nasu.tienda.domain.Categoria;
+import com.nasu.tienda.dto.VentaPorDia;
+import com.nasu.tienda.dto.VentaPorProducto;
 import com.nasu.tienda.service.CategoriaService;
+import com.nasu.tienda.service.ProductoService;
 import com.nasu.tienda.service.ReporteService;
 import com.nasu.tienda.util.ControlAcceso;
 import jakarta.servlet.http.HttpSession;
@@ -27,14 +30,56 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class ReporteController {
 
     private final ReporteService reporteService;
+    private final ProductoService productoService;
     private final CategoriaService categoriaService;
     private final MessageSource messageSource;
 
-    public ReporteController(ReporteService reporteService, CategoriaService categoriaService,
-            MessageSource messageSource) {
+    public ReporteController(ReporteService reporteService, ProductoService productoService,
+            CategoriaService categoriaService, MessageSource messageSource) {
         this.reporteService = reporteService;
+        this.productoService = productoService;
         this.categoriaService = categoriaService;
         this.messageSource = messageSource;
+    }
+
+    // HU-22: panel con los indicadores de ventas e inventario del negocio
+    @GetMapping("/panel")
+    public String panel(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+        String redireccion = validarAdmin(session, redirectAttributes);
+        if (redireccion != null) {
+            return redireccion;
+        }
+
+        LocalDate hoy = LocalDate.now();
+        LocalDate inicioMes = hoy.withDayOfMonth(1);
+        //El gráfico de evolución abarca los últimos tres meses
+        LocalDate inicioGrafico = hoy.minusDays(89);
+
+        var resumenMes = reporteService.getResumen(inicioMes, hoy);
+        var ventasPorDia = reporteService.getVentasPorDia(inicioGrafico, hoy);
+        var topProductos = reporteService.getTopProductos(5);
+        var alertas = reporteService.getProductosBajoInventario(ReporteService.UMBRAL_BAJO_INVENTARIO);
+
+        model.addAttribute("resumenMes", resumenMes);
+        model.addAttribute("ticketPromedio", reporteService.calcularTicketPromedio(resumenMes));
+        model.addAttribute("valorInventario", productoService.getValorInventario());
+        model.addAttribute("productosActivos", productoService.contarActivos());
+        model.addAttribute("alertas", alertas);
+        model.addAttribute("totalAlertas", alertas.size());
+        model.addAttribute("totalAgotados", reporteService.contarAgotados(alertas));
+        model.addAttribute("desde", inicioMes);
+        model.addAttribute("hasta", hoy);
+
+        //Series que consume Chart.js en la vista
+        model.addAttribute("etiquetasDias", ventasPorDia.stream().map(VentaPorDia::getFecha).toList());
+        model.addAttribute("montosDias", ventasPorDia.stream()
+                .map(v -> v.getMonto().doubleValue()).toList());
+        model.addAttribute("etiquetasProductos", topProductos.stream()
+                .map(VentaPorProducto::getProducto).toList());
+        model.addAttribute("montosProductos", topProductos.stream()
+                .map(v -> v.getMonto().doubleValue()).toList());
+
+        return "/reporte/panel";
     }
 
     // HU-17: lista los productos activos cuyo inventario llegó al umbral definido
