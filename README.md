@@ -32,7 +32,7 @@ para las historias priorizadas como Debe tener.
 ## Tecnologías
 
 - Java 21
-- Spring Boot (Web, Thymeleaf, Data JPA, Validation, DevTools)
+- Spring Boot (Web, Thymeleaf, Data JPA, Validation, Security, DevTools)
 - Hibernate/JPA con MySQL
 - Bootstrap 5 y Font Awesome (WebJars)
 - **Chart.js** (WebJar) — librería investigada por el equipo, no vista en clase;
@@ -123,11 +123,26 @@ Las 22 historias del documento quedan implementadas.
 > HU-19 estaba clasificada como *No tendrá (v1)* en la priorización MoSCoW inicial;
 > se adelantó porque comparte las mismas consultas de la HU-18.
 
+## Seguridad y roles
+
+La autenticación y la autorización usan **Spring Security**:
+
+- Las contraseñas se guardan cifradas con BCrypt.
+- `UsuarioDetailsService` carga la cuenta y sus roles desde `usuario` y
+  `usuario_rol` cuando alguien inicia sesión.
+- `SecurityConfig` **no tiene las reglas escritas en el código**: las arma
+  leyendo la tabla `ruta`, donde cada dirección indica el rol que necesita.
+  Cambiar quién entra a qué pantalla es cambiar un registro de la base.
+- Cualquier dirección que no esté en `ruta` exige haber iniciado sesión.
+- Los formularios llevan token CSRF y el cierre de sesión se hace por POST.
+
+Roles definidos: `ADMIN`, `ENCARGADO DE PRODUCCION` y `USER`. Quien se registra
+desde la página pública obtiene `USER`.
+
 ## Pantallas de administración
 
-Las historias HU-12 a HU-19 son de uso exclusivo del administrador. Al iniciar
-sesión, el sistema carga los roles del usuario y habilita el menú
-**Administración** de la barra de navegación:
+Las historias HU-12 a HU-20 y HU-22 son de uso exclusivo del administrador. El
+menú **Administración** de la barra de navegación solo aparece para ese rol:
 
 | Pantalla | Ruta | Historia |
 |---|---|---|

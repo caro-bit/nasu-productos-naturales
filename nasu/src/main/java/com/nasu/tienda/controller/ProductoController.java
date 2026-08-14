@@ -4,8 +4,6 @@ import com.nasu.tienda.domain.Categoria;
 import com.nasu.tienda.domain.Producto;
 import com.nasu.tienda.service.CategoriaService;
 import com.nasu.tienda.service.ProductoService;
-import com.nasu.tienda.util.ControlAcceso;
-import jakarta.servlet.http.HttpSession;
 import java.util.Locale;
 import java.util.Optional;
 import org.springframework.context.MessageSource;
@@ -91,12 +89,7 @@ public class ProductoController {
     }
     
     @GetMapping("/listadoAdminTemp")
-    public String listadoAdminTemp(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
-        String redireccion = validarAdmin(session, redirectAttributes);
-        if (redireccion != null) {
-            return redireccion;
-        }
-
+    public String listadoAdminTemp(Model model, RedirectAttributes redirectAttributes) {
         var productos = productoService.getProductos(false); // incluye inactivos
         model.addAttribute("productos", productos);
         model.addAttribute("totalProductos", productos.size());
@@ -111,12 +104,7 @@ public class ProductoController {
 
     @PostMapping("/guardar")
     public String guardar(@Valid Producto producto, BindingResult errores,
-            HttpSession session, RedirectAttributes redirectAttributes) {
-
-        String redireccion = validarAdmin(session, redirectAttributes);
-        if (redireccion != null) {
-            return redireccion;
-        }
+            RedirectAttributes redirectAttributes) {
 
         //Sin BindingResult, un dato inválido terminaba en la página de error del servidor
         if (errores.hasErrors()) {
@@ -130,12 +118,7 @@ public class ProductoController {
     }
 
     @PostMapping("/eliminar")
-    public String eliminar(@RequestParam Integer idProducto, HttpSession session, RedirectAttributes redirectAttributes) {
-        String redireccion = validarAdmin(session, redirectAttributes);
-        if (redireccion != null) {
-            return redireccion;
-        }
-
+    public String eliminar(@RequestParam Integer idProducto, RedirectAttributes redirectAttributes) {
         String titulo = "todoOk";
         String detalle = "mensaje.eliminado";
         try {
@@ -156,13 +139,8 @@ public class ProductoController {
 
     // HU-14: saca el producto del catálogo (o lo devuelve) sin borrar su historial
     @PostMapping("/estado")
-    public String cambiarEstado(@RequestParam Integer idProducto, HttpSession session,
+    public String cambiarEstado(@RequestParam Integer idProducto,
             RedirectAttributes redirectAttributes) {
-
-        String redireccion = validarAdmin(session, redirectAttributes);
-        if (redireccion != null) {
-            return redireccion;
-        }
 
         try {
             boolean activo = productoService.cambiarEstado(idProducto);
@@ -176,13 +154,8 @@ public class ProductoController {
     }
 
     @GetMapping("/editar/{idProducto}")
-    public String editar(@PathVariable("idProducto") Integer idProducto, HttpSession session,
+    public String editar(@PathVariable("idProducto") Integer idProducto,
             Model model, RedirectAttributes redirectAttributes) {
-
-        String redireccion = validarAdmin(session, redirectAttributes);
-        if (redireccion != null) {
-            return redireccion;
-        }
 
         Optional<Producto> productoOpt = productoService.getProducto(idProducto);
         if (productoOpt.isEmpty()) {
@@ -196,8 +169,4 @@ public class ProductoController {
     }
 
     //El mantenimiento del catálogo es de uso exclusivo del administrador
-    private String validarAdmin(HttpSession session, RedirectAttributes redirectAttributes) {
-        return ControlAcceso.validarAdmin(session, redirectAttributes, messageSource);
-    }
-
 }

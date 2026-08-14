@@ -1,7 +1,7 @@
 package com.nasu.tienda;
 
-import com.nasu.tienda.util.SesionUtil;
 import static org.hamcrest.Matchers.containsString;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -11,12 +11,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 /**
  * Comprueba que las pantallas de administración se dibujan sin errores y que
- * un visitante sin rol no puede entrar a ellas.
+ * las reglas de acceso de la tabla ruta se están aplicando de verdad.
  *
  * Las pruebas necesitan la base nasu creada, porque las pantallas consultan
  * productos y ventas reales.
@@ -28,17 +28,18 @@ class PantallasAdminTests {
     @Autowired
     private MockMvc mockMvc;
 
-    //Se arma la sesión de un administrador sin pasar por el formulario de login
-    private MockHttpSession sesionAdmin() {
-        MockHttpSession sesion = new MockHttpSession();
-        sesion.setAttribute(SesionUtil.ID_USUARIO, 1);
-        sesion.setAttribute(SesionUtil.ES_ADMIN, Boolean.TRUE);
-        return sesion;
+    //Usuarios simulados: Spring Security espera los permisos sin el prefijo ROLE_
+    private RequestPostProcessor admin() {
+        return user("juan").roles("ADMIN");
+    }
+
+    private RequestPostProcessor cliente() {
+        return user("pedro").roles("USER");
     }
 
     @Test
     void elPanelSeDibujaParaElAdministrador() throws Exception {
-        mockMvc.perform(get("/reporte/panel").session(sesionAdmin()))
+        mockMvc.perform(get("/reporte/panel").with(admin()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("/reporte/panel"))
                 //Comprueba que el HTML salió con los gráficos de Chart.js dentro
@@ -48,28 +49,28 @@ class PantallasAdminTests {
 
     @Test
     void elInventarioBajoSeDibujaParaElAdministrador() throws Exception {
-        mockMvc.perform(get("/reporte/inventario").session(sesionAdmin()))
+        mockMvc.perform(get("/reporte/inventario").with(admin()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("/reporte/inventario"));
     }
 
     @Test
     void laConsultaDeVentasSeDibujaParaElAdministrador() throws Exception {
-        mockMvc.perform(get("/reporte/ventas").session(sesionAdmin()))
+        mockMvc.perform(get("/reporte/ventas").with(admin()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("/reporte/ventas"));
     }
 
     @Test
     void elReportePorPeriodoSeDibujaParaElAdministrador() throws Exception {
-        mockMvc.perform(get("/reporte/periodo").session(sesionAdmin()))
+        mockMvc.perform(get("/reporte/periodo").with(admin()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("/reporte/periodo"));
     }
 
     @Test
     void elListadoDeUsuariosMuestraLosRolesDeCadaCuenta() throws Exception {
-        mockMvc.perform(get("/usuario/listado").session(sesionAdmin()))
+        mockMvc.perform(get("/usuario/listado").with(admin()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("/usuario/listadoAdmin"))
                 .andExpect(content().string(containsString("juan")))
@@ -78,7 +79,7 @@ class PantallasAdminTests {
 
     @Test
     void elCatalogoDeAdministracionSeDibujaParaElAdministrador() throws Exception {
-        mockMvc.perform(get("/producto/listadoAdminTemp").session(sesionAdmin()))
+        mockMvc.perform(get("/producto/listadoAdminTemp").with(admin()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("/producto/listadoAdminTemp"));
     }
@@ -91,11 +92,14 @@ class PantallasAdminTests {
 
     @Test
     void unClienteSinRolAdminNoEntraALosReportes() throws Exception {
-        MockHttpSession sesionCliente = new MockHttpSession();
-        sesionCliente.setAttribute(SesionUtil.ID_USUARIO, 3);
-        sesionCliente.setAttribute(SesionUtil.ES_ADMIN, Boolean.FALSE);
+        mockMvc.perform(get("/reporte/ventas").with(cliente()))
+                .andExpect(status().isForbidden());
+    }
 
-        mockMvc.perform(get("/reporte/ventas").session(sesionCliente))
-                .andExpect(status().is3xxRedirection());
+    @Test
+    void elCatalogoPublicoSeVeSinIniciarSesion() throws Exception {
+        mockMvc.perform(get("/producto/listado"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("/producto/listado"));
     }
 }

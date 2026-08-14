@@ -1,20 +1,35 @@
 # Lógica agregada para historias de usuario de administrador
 
-## Control de acceso
+## Control de acceso con Spring Security
 
-Las tres historias son de uso exclusivo del administrador, por lo que primero se
-agregó la información de roles a la sesión:
+Las pantallas de administración son de uso exclusivo del rol `ADMIN`, así que la
+autenticación pasó de una validación propia en sesión a **Spring Security**,
+siguiendo el patrón visto en clase:
 
-1. Al iniciar sesión, `UsuarioService.getRoles()` consulta las tablas `rol` y
-   `usuario_rol` y el controlador guarda en sesión `roles` y `esAdmin`.
-2. `SesionUtil` centraliza la lectura de esos datos y `ControlAcceso.validarAdmin()`
-   define la regla única: sin sesión redirige a `/login`, con sesión pero sin rol
-   `ADMIN` redirige a la portada con un mensaje de acceso denegado.
-3. El menú **Administración** de la barra de navegación solo se dibuja cuando
-   `session.esAdmin` es verdadero.
+1. `UsuarioDetailsService` busca la cuenta activa por su nombre de usuario y
+   convierte sus roles en permisos (`ROLE_ADMIN`, `ROLE_USER`, …). La contraseña
+   la compara Spring Security contra el hash BCrypt guardado en la base.
+2. `SecurityConfig` **no lleva las rutas escritas en el código**: recorre la
+   tabla `ruta` y por cada registro decide si la dirección es pública o si exige
+   un rol. Las públicas se registran primero, porque gana la primera regla que
+   coincide. Lo que no esté en la tabla exige haber iniciado sesión.
+3. El formulario de login y el cierre de sesión los atiende el propio framework;
+   el controlador solo muestra la pantalla. El logout va por POST y todos los
+   formularios llevan token CSRF.
+4. `UsuarioActual` resuelve quién está autenticado a partir del contexto de
+   seguridad, y `ModeloGlobal` lo pone en el modelo de todas las vistas para que
+   la barra de navegación salude al usuario y muestre el menú que le toca.
+5. Quien entra a una pantalla que no le corresponde termina en
+   `/acceso-denegado` en lugar de ver un error del servidor.
 
-La misma validación se aplicó a las pantallas de mantenimiento del catálogo
-(HU-12 a HU-15), que antes quedaban accesibles para cualquier visitante.
+Antes de este cambio las pantallas de mantenimiento del catálogo (HU-12 a HU-15)
+quedaban accesibles para cualquier visitante que supiera la dirección, y la
+tabla `ruta` estaba cargada pero sin usar.
+
+**Importante para el equipo:** las reglas viven en la tabla `ruta`, así que
+después de traer estos cambios hay que volver a cargar `db/nasu.sql` (o al menos
+esa tabla). Si falta un registro, la dirección correspondiente queda accesible
+para cualquier usuario con sesión iniciada.
 
 ## HU-17 Productos con bajo inventario
 **Historia:** Como administrador, deseo visualizar los productos con bajo inventario para reabastecerlos oportunamente.

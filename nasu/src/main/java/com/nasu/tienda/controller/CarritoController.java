@@ -4,8 +4,7 @@ import com.nasu.tienda.domain.Direccion;
 import com.nasu.tienda.service.CarritoService;
 import com.nasu.tienda.service.DireccionService;
 import com.nasu.tienda.service.MetPagoService;
-import com.nasu.tienda.util.SesionUtil;
-import jakarta.servlet.http.HttpSession;
+import com.nasu.tienda.util.UsuarioActual;
 import java.util.Locale;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
@@ -24,19 +23,21 @@ public class CarritoController {
     private final CarritoService carritoService;
     private final DireccionService direccionService;
     private final MetPagoService metPagoService;
+    private final UsuarioActual usuarioActual;
     private final MessageSource messageSource;
 
     public CarritoController(CarritoService carritoService, DireccionService direccionService,
-            MetPagoService metPagoService, MessageSource messageSource) {
+            MetPagoService metPagoService, UsuarioActual usuarioActual, MessageSource messageSource) {
         this.carritoService = carritoService;
         this.direccionService = direccionService;
         this.metPagoService = metPagoService;
+        this.usuarioActual = usuarioActual;
         this.messageSource = messageSource;
     }
 
     @GetMapping("/checkout")
-    public String checkout(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
-        Integer idUsuario = getIdUsuario(session);
+    public String checkout(Model model, RedirectAttributes redirectAttributes) {
+        Integer idUsuario = getIdUsuario();
         if (idUsuario == null) {
             redirectAttributes.addFlashAttribute("error",
                     messageSource.getMessage("usuario.login.requerido", null, Locale.getDefault()));
@@ -59,8 +60,8 @@ public class CarritoController {
     }
 
     @GetMapping("/listado")
-    public String listado(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
-        Integer idUsuario = getIdUsuario(session);
+    public String listado(Model model, RedirectAttributes redirectAttributes) {
+        Integer idUsuario = getIdUsuario();
         if (idUsuario == null) {
             redirectAttributes.addFlashAttribute("error",
                     messageSource.getMessage("usuario.login.requerido", null, Locale.getDefault()));
@@ -77,9 +78,9 @@ public class CarritoController {
     @PostMapping("/agregar/{idProducto}")
     public String agregar(@PathVariable("idProducto") Integer idProducto,
             @RequestParam(defaultValue = "1") Integer cantidad,
-            HttpSession session, RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes) {
 
-        Integer idUsuario = getIdUsuario(session);
+        Integer idUsuario = getIdUsuario();
         if (idUsuario == null) {
             redirectAttributes.addFlashAttribute("error",
                     messageSource.getMessage("usuario.login.requerido", null, Locale.getDefault()));
@@ -98,9 +99,9 @@ public class CarritoController {
 
     @PostMapping("/actualizar/{idDetcarrito}")
     public String actualizar(@PathVariable("idDetcarrito") Integer idDetcarrito,
-            @RequestParam Integer cantidad, HttpSession session, RedirectAttributes redirectAttributes) {
+            @RequestParam Integer cantidad, RedirectAttributes redirectAttributes) {
 
-        Integer idUsuario = getIdUsuario(session);
+        Integer idUsuario = getIdUsuario();
         if (idUsuario == null) {
             redirectAttributes.addFlashAttribute("error",
                     messageSource.getMessage("usuario.login.requerido", null, Locale.getDefault()));
@@ -119,9 +120,9 @@ public class CarritoController {
 
     @PostMapping("/eliminar/{idDetcarrito}")
     public String eliminar(@PathVariable("idDetcarrito") Integer idDetcarrito,
-            HttpSession session, RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes) {
 
-        Integer idUsuario = getIdUsuario(session);
+        Integer idUsuario = getIdUsuario();
         if (idUsuario == null) {
             redirectAttributes.addFlashAttribute("error",
                     messageSource.getMessage("usuario.login.requerido", null, Locale.getDefault()));
@@ -139,8 +140,8 @@ public class CarritoController {
     }
 
     @PostMapping("/vaciar")
-    public String vaciar(HttpSession session, RedirectAttributes redirectAttributes) {
-        Integer idUsuario = getIdUsuario(session);
+    public String vaciar(RedirectAttributes redirectAttributes) {
+        Integer idUsuario = getIdUsuario();
         if (idUsuario == null) {
             redirectAttributes.addFlashAttribute("error",
                     messageSource.getMessage("usuario.login.requerido", null, Locale.getDefault()));
@@ -153,7 +154,7 @@ public class CarritoController {
         return "redirect:/carrito/listado";
     }
 
-    private Integer getIdUsuario(HttpSession session) {
-        return SesionUtil.getIdUsuario(session);
+    private Integer getIdUsuario() {
+        return usuarioActual.getIdUsuario();
     }
 }

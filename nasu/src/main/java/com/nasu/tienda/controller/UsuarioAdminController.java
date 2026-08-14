@@ -1,9 +1,7 @@
 package com.nasu.tienda.controller;
 
 import com.nasu.tienda.service.UsuarioService;
-import com.nasu.tienda.util.ControlAcceso;
-import com.nasu.tienda.util.SesionUtil;
-import jakarta.servlet.http.HttpSession;
+import com.nasu.tienda.util.UsuarioActual;
 import java.util.Locale;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
@@ -23,41 +21,34 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class UsuarioAdminController {
 
     private final UsuarioService usuarioService;
+    private final UsuarioActual usuarioActual;
     private final MessageSource messageSource;
 
-    public UsuarioAdminController(UsuarioService usuarioService, MessageSource messageSource) {
+    public UsuarioAdminController(UsuarioService usuarioService, UsuarioActual usuarioActual,
+            MessageSource messageSource) {
         this.usuarioService = usuarioService;
+        this.usuarioActual = usuarioActual;
         this.messageSource = messageSource;
     }
 
     @GetMapping("/listado")
-    public String listado(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
-        String redireccion = validarAdmin(session, redirectAttributes);
-        if (redireccion != null) {
-            return redireccion;
-        }
-
+    public String listado(Model model, RedirectAttributes redirectAttributes) {
         var usuarios = usuarioService.getUsuarios();
         model.addAttribute("usuarios", usuarios);
         model.addAttribute("totalUsuarios", usuarios.size());
         model.addAttribute("rolesPorUsuario", usuarioService.getRolesPorUsuario());
         model.addAttribute("roles", usuarioService.getRolesDisponibles());
         //Permite marcar la fila del administrador que está usando la pantalla
-        model.addAttribute("idUsuarioActual", SesionUtil.getIdUsuario(session));
+        model.addAttribute("idUsuarioActual", usuarioActual.getIdUsuario());
         return "/usuario/listadoAdmin";
     }
 
     @PostMapping("/estado")
-    public String cambiarEstado(@RequestParam Integer idUsuario, HttpSession session,
+    public String cambiarEstado(@RequestParam Integer idUsuario,
             RedirectAttributes redirectAttributes) {
 
-        String redireccion = validarAdmin(session, redirectAttributes);
-        if (redireccion != null) {
-            return redireccion;
-        }
-
         try {
-            usuarioService.cambiarEstado(idUsuario, SesionUtil.getIdUsuario(session));
+            usuarioService.cambiarEstado(idUsuario, usuarioActual.getIdUsuario());
             mensaje(redirectAttributes, "todoOk", "mensaje.actualizado");
         } catch (IllegalArgumentException | IllegalStateException ex) {
             mensaje(redirectAttributes, "error", ex.getMessage());
@@ -67,12 +58,7 @@ public class UsuarioAdminController {
 
     @PostMapping("/rol/asignar")
     public String asignarRol(@RequestParam Integer idUsuario, @RequestParam Integer idRol,
-            HttpSession session, RedirectAttributes redirectAttributes) {
-
-        String redireccion = validarAdmin(session, redirectAttributes);
-        if (redireccion != null) {
-            return redireccion;
-        }
+            RedirectAttributes redirectAttributes) {
 
         try {
             usuarioService.asignarRol(idUsuario, idRol);
@@ -85,15 +71,10 @@ public class UsuarioAdminController {
 
     @PostMapping("/rol/quitar")
     public String quitarRol(@RequestParam Integer idUsuario, @RequestParam Integer idRol,
-            HttpSession session, RedirectAttributes redirectAttributes) {
-
-        String redireccion = validarAdmin(session, redirectAttributes);
-        if (redireccion != null) {
-            return redireccion;
-        }
+            RedirectAttributes redirectAttributes) {
 
         try {
-            usuarioService.quitarRol(idUsuario, idRol, SesionUtil.getIdUsuario(session));
+            usuarioService.quitarRol(idUsuario, idRol, usuarioActual.getIdUsuario());
             mensaje(redirectAttributes, "todoOk", "usuario.rol.quitado");
         } catch (IllegalArgumentException | IllegalStateException ex) {
             mensaje(redirectAttributes, "error", ex.getMessage());
@@ -107,7 +88,4 @@ public class UsuarioAdminController {
                 messageSource.getMessage(clave, null, Locale.getDefault()));
     }
 
-    private String validarAdmin(HttpSession session, RedirectAttributes redirectAttributes) {
-        return ControlAcceso.validarAdmin(session, redirectAttributes, messageSource);
-    }
 }

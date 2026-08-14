@@ -2,8 +2,7 @@ package com.nasu.tienda.controller;
 
 import com.nasu.tienda.domain.Direccion;
 import com.nasu.tienda.service.DireccionService;
-import com.nasu.tienda.util.SesionUtil;
-import jakarta.servlet.http.HttpSession;
+import com.nasu.tienda.util.UsuarioActual;
 import jakarta.validation.Valid;
 import java.util.Locale;
 import org.springframework.context.MessageSource;
@@ -18,18 +17,21 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class DireccionController {
 
     private final DireccionService direccionService;
+    private final UsuarioActual usuarioActual;
     private final MessageSource messageSource;
 
-    public DireccionController(DireccionService direccionService, MessageSource messageSource) {
+    public DireccionController(DireccionService direccionService, UsuarioActual usuarioActual,
+            MessageSource messageSource) {
         this.direccionService = direccionService;
+        this.usuarioActual = usuarioActual;
         this.messageSource = messageSource;
     }
 
     @PostMapping("/guardar")
     public String guardar(@Valid Direccion direccion, BindingResult errores,
-            HttpSession session, RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes) {
 
-        Integer idUsuario = getIdUsuario(session);
+        Integer idUsuario = getIdUsuario();
         if (idUsuario == null) {
             redirectAttributes.addFlashAttribute("error",
                     messageSource.getMessage("usuario.login.requerido", null, Locale.getDefault()));
@@ -49,7 +51,7 @@ public class DireccionController {
         return "redirect:/carrito/checkout";
     }
 
-    private Integer getIdUsuario(HttpSession session) {
-        return SesionUtil.getIdUsuario(session);
+    private Integer getIdUsuario() {
+        return usuarioActual.getIdUsuario();
     }
 }

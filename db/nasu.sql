@@ -359,32 +359,25 @@ insert into rol (rol) values ('ADMIN'), ('ENCARGADO DE PRODUCCION'), ('USER');
 insert into usuario_rol (id_usuario, id_rol) values
  (1,1), (1,2), (1,3),(2,2),(2,3),(3,3);
 
--- Inserción de rutas con roles específicos
--- (mientras no se active Spring Security, el rol ADMIN se valida en los
---  controladores con el dato que el login deja en la sesión)
+-- Inserción de rutas con roles específicos.
+-- SecurityConfig arma las reglas de Spring Security leyendo esta tabla, así que
+-- cambiar quién entra a qué pantalla es cambiar un registro aquí. Cualquier
+-- dirección que no aparezca en la tabla exige haber iniciado sesión.
 INSERT INTO ruta (ruta, id_rol) VALUES
-('/producto/nuevo', 1),
-('/producto/guardar', 1),
+-- Mantenimiento del catálogo (HU-12 a HU-15) y reportes (HU-17 a HU-19, HU-22)
 ('/producto/listadoAdminTemp', 1),
+('/producto/guardar', 1),
 ('/producto/editar/**', 1),
 ('/producto/eliminar', 1),
+('/producto/estado', 1),
 ('/reporte/**', 1),
-('/categoria/nuevo', 1),
-('/categoria/guardar', 1),
-('/categoria/modificar/**', 1),
-('/categoria/eliminar/**', 1),
+-- Administración de usuarios y permisos (HU-20)
 ('/usuario/**', 1),
-('/constante/**', 1),
-('/role/**', 1),
-('/usuario_role/**', 1),
-('/ruta/**', 1),
-('/categoria/listado', 2),
-('/pruebas/**', 2),
-('/reportes/**', 2),
-('/paypal/**', 3),
-('/facturar/carrito', 3),
-('/perfil', 3),
-('/carrito/**', 3);
+-- Zona del cliente: carrito, direcciones, pedidos y perfil (HU-07 a HU-11, HU-21)
+('/carrito/**', 3),
+('/direccion/**', 3),
+('/pedido/**', 3),
+('/perfil', 3);
 
 -- Inserción de rutas que no requieren rol
 -- (el catálogo público de las HU-01 a HU-04 debe ser accesible para visitantes)
@@ -397,11 +390,11 @@ INSERT INTO ruta (ruta,requiere_rol) VALUES
 ('/producto/buscar',false),
 ('/nosotros',false),
 ('/contacto',false),
-('/errores/**',false),
 ('/login',false),
 ('/logout',false),
 ('/registro/**',false),
-('/403',false),
+('/acceso-denegado',false),
+('/error',false),
 ('/fav/**',false),
 ('/js/**',false),
 ('/css/**',false),

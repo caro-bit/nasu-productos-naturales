@@ -6,8 +6,6 @@ import com.nasu.tienda.dto.VentaPorProducto;
 import com.nasu.tienda.service.CategoriaService;
 import com.nasu.tienda.service.ProductoService;
 import com.nasu.tienda.service.ReporteService;
-import com.nasu.tienda.util.ControlAcceso;
-import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Map;
@@ -44,12 +42,7 @@ public class ReporteController {
 
     // HU-22: panel con los indicadores de ventas e inventario del negocio
     @GetMapping("/panel")
-    public String panel(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
-        String redireccion = validarAdmin(session, redirectAttributes);
-        if (redireccion != null) {
-            return redireccion;
-        }
-
+    public String panel(Model model, RedirectAttributes redirectAttributes) {
         LocalDate hoy = LocalDate.now();
         LocalDate inicioMes = hoy.withDayOfMonth(1);
         //El gráfico de evolución abarca los últimos tres meses
@@ -85,12 +78,7 @@ public class ReporteController {
     // HU-17: lista los productos activos cuyo inventario llegó al umbral definido
     @GetMapping("/inventario")
     public String inventario(@RequestParam(required = false) Integer umbral,
-            HttpSession session, Model model, RedirectAttributes redirectAttributes) {
-
-        String redireccion = validarAdmin(session, redirectAttributes);
-        if (redireccion != null) {
-            return redireccion;
-        }
+            Model model, RedirectAttributes redirectAttributes) {
 
         int umbralAplicado = reporteService.resolverUmbral(umbral);
         var productos = reporteService.getProductosBajoInventario(umbralAplicado);
@@ -107,12 +95,7 @@ public class ReporteController {
     @GetMapping("/ventas")
     public String ventas(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
-            HttpSession session, Model model, RedirectAttributes redirectAttributes) {
-
-        String redireccion = validarAdmin(session, redirectAttributes);
-        if (redireccion != null) {
-            return redireccion;
-        }
+            Model model, RedirectAttributes redirectAttributes) {
 
         LocalDate desdeAplicado = reporteService.resolverDesde(desde);
         LocalDate hastaAplicado = reporteService.resolverHasta(hasta);
@@ -134,12 +117,7 @@ public class ReporteController {
     @GetMapping("/periodo")
     public String periodo(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
-            HttpSession session, Model model, RedirectAttributes redirectAttributes) {
-
-        String redireccion = validarAdmin(session, redirectAttributes);
-        if (redireccion != null) {
-            return redireccion;
-        }
+            Model model, RedirectAttributes redirectAttributes) {
 
         //Por defecto el reporte muestra el mes en curso
         LocalDate hastaAplicado = hasta != null ? hasta : LocalDate.now();
@@ -162,11 +140,6 @@ public class ReporteController {
         model.addAttribute("desde", desdeAplicado);
         model.addAttribute("hasta", hastaAplicado);
         return "/reporte/periodo";
-    }
-
-    //Los reportes son de uso exclusivo del administrador del negocio
-    private String validarAdmin(HttpSession session, RedirectAttributes redirectAttributes) {
-        return ControlAcceso.validarAdmin(session, redirectAttributes, messageSource);
     }
 
     //Permite mostrar el nombre de la categoría a partir del id guardado en el producto

@@ -3,8 +3,7 @@ package com.nasu.tienda.controller;
 import com.nasu.tienda.domain.Usuario;
 import com.nasu.tienda.service.PedidoService;
 import com.nasu.tienda.service.UsuarioService;
-import com.nasu.tienda.util.SesionUtil;
-import jakarta.servlet.http.HttpSession;
+import com.nasu.tienda.util.UsuarioActual;
 import jakarta.validation.Valid;
 import java.util.Locale;
 import org.springframework.context.MessageSource;
@@ -13,7 +12,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -21,22 +19,25 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
     private final PedidoService pedidoService;
+    private final UsuarioActual usuarioActual;
     private final MessageSource messageSource;
 
-    public UsuarioController(UsuarioService usuarioService, PedidoService pedidoService, MessageSource messageSource) {
+    public UsuarioController(UsuarioService usuarioService, PedidoService pedidoService,
+            UsuarioActual usuarioActual, MessageSource messageSource) {
         this.usuarioService = usuarioService;
         this.pedidoService = pedidoService;
+        this.usuarioActual = usuarioActual;
         this.messageSource = messageSource;
     }
 
-    // HU-01: muestra el formulario para registrar clientes
+    // HU-05: muestra el formulario para registrar clientes
     @GetMapping("/registro")
     public String registro(Model model) {
         model.addAttribute("usuario", new Usuario());
         return "/usuario/registro";
     }
 
-    // HU-01: registra el cliente y lo deja listo para iniciar sesión
+    // HU-05: registra el cliente y lo deja listo para iniciar sesión
     @PostMapping("/registro/guardar")
     public String guardarRegistro(@Valid Usuario usuario, BindingResult errores,
             RedirectAttributes redirectAttributes, Model model) {
@@ -70,56 +71,28 @@ public class UsuarioController {
         return "redirect:/login";
     }
 
-    // HU-02: muestra el formulario para iniciar sesión
+    // HU-06: muestra el formulario de inicio de sesión.
+    // La validación de las credenciales y el cierre de sesión los atiende
+    // Spring Security (ver SecurityConfig), por eso aquí no hay POST /login
+    // ni GET /logout.
     @GetMapping("/login")
     public String login() {
         return "/usuario/login";
     }
 
-    // HU-02: valida las credenciales y guarda el cliente en sesión
-    @PostMapping("/login")
-    public String autenticar(@RequestParam String username, @RequestParam String password,
-            HttpSession session, RedirectAttributes redirectAttributes) {
-
-        var usuarioOpt = usuarioService.validarLogin(username, password);
-        if (usuarioOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error",
-                    messageSource.getMessage("usuario.login.error", null, Locale.getDefault()));
-            return "redirect:/login";
-        }
-
-        var usuario = usuarioOpt.get();
-        var roles = usuarioService.getRoles(usuario.getIdUsuario());
-        session.setAttribute(SesionUtil.USUARIO, usuario);
-        session.setAttribute(SesionUtil.ID_USUARIO, usuario.getIdUsuario());
-        session.setAttribute(SesionUtil.ROLES, roles);
-        //Se guarda el rol en sesión para habilitar las pantallas de administración
-        session.setAttribute(SesionUtil.ES_ADMIN, roles.contains(UsuarioService.ROL_ADMIN));
-        redirectAttributes.addFlashAttribute("todoOk",
-                messageSource.getMessage("usuario.login.ok", new Object[]{usuario.getNombre()}, Locale.getDefault()));
-        return "redirect:/";
-    }
-
-    // HU-02: permite al cliente ver su información y sus compras
+    // HU-06: permite al cliente ver su información y sus compras
     @GetMapping("/perfil")
-    public String perfil(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
-        Usuario usuario = (Usuario) session.getAttribute(SesionUtil.USUARIO);
-        if (usuario == null) {
+    public String perfil(Model model, RedirectAttributes redirectAttributes) {
+        var usuarioOpt = usuarioActual.get();
+        if (usuarioOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("error",
                     messageSource.getMessage("usuario.login.requerido", null, Locale.getDefault()));
             return "redirect:/login";
         }
 
+        Usuario usuario = usuarioOpt.get();
         model.addAttribute("usuario", usuario);
         model.addAttribute("pedidos", pedidoService.getPedidosPorUsuario(usuario.getIdUsuario()));
         return "/usuario/perfil";
-    }
-
-    @GetMapping("/logout")
-    public String cerrarSesion(HttpSession session, RedirectAttributes redirectAttributes) {
-        session.invalidate();
-        redirectAttributes.addFlashAttribute("todoOk",
-                messageSource.getMessage("usuario.logout.ok", null, Locale.getDefault()));
-        return "redirect:/";
     }
 }

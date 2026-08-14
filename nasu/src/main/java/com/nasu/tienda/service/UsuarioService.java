@@ -66,22 +66,6 @@ public class UsuarioService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Usuario> validarLogin(String username, String password) {
-        var usuarioOpt = usuarioRepository.findByUsername(username);
-        if (usuarioOpt.isEmpty()) {
-            return Optional.empty();
-        }
-        var usuario = usuarioOpt.get();
-        if (!Boolean.TRUE.equals(usuario.getActivo())) {
-            return Optional.empty();
-        }
-        if (!passwordEncoder.matches(password, usuario.getPassword())) {
-            return Optional.empty();
-        }
-        return Optional.of(usuario);
-    }
-
-    @Transactional(readOnly = true)
     public List<String> getRoles(Integer idUsuario) {
         return usuarioRepository.findRolesByIdUsuario(idUsuario);
     }

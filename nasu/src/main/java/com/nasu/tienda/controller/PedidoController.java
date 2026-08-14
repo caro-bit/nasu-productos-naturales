@@ -2,8 +2,7 @@ package com.nasu.tienda.controller;
 
 import com.nasu.tienda.domain.Pedido;
 import com.nasu.tienda.service.PedidoService;
-import com.nasu.tienda.util.SesionUtil;
-import jakarta.servlet.http.HttpSession;
+import com.nasu.tienda.util.UsuarioActual;
 import java.util.Locale;
 import java.util.Optional;
 import org.springframework.context.MessageSource;
@@ -21,18 +20,21 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class PedidoController {
 
     private final PedidoService pedidoService;
+    private final UsuarioActual usuarioActual;
     private final MessageSource messageSource;
 
-    public PedidoController(PedidoService pedidoService, MessageSource messageSource) {
+    public PedidoController(PedidoService pedidoService, UsuarioActual usuarioActual,
+            MessageSource messageSource) {
         this.pedidoService = pedidoService;
+        this.usuarioActual = usuarioActual;
         this.messageSource = messageSource;
     }
 
     @PostMapping("/confirmar")
     public String confirmar(@RequestParam Integer idDireccion, @RequestParam Integer idMetodoPago,
-            HttpSession session, RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes) {
 
-        Integer idUsuario = getIdUsuario(session);
+        Integer idUsuario = getIdUsuario();
         if (idUsuario == null) {
             redirectAttributes.addFlashAttribute("error",
                     messageSource.getMessage("usuario.login.requerido", null, Locale.getDefault()));
@@ -51,10 +53,10 @@ public class PedidoController {
     }
 
     @GetMapping("/confirmacion/{idPedido}")
-    public String confirmacion(@PathVariable Integer idPedido, HttpSession session,
+    public String confirmacion(@PathVariable Integer idPedido,
             Model model, RedirectAttributes redirectAttributes) {
 
-        Integer idUsuario = getIdUsuario(session);
+        Integer idUsuario = getIdUsuario();
         if (idUsuario == null) {
             redirectAttributes.addFlashAttribute("error",
                     messageSource.getMessage("usuario.login.requerido", null, Locale.getDefault()));
@@ -73,8 +75,8 @@ public class PedidoController {
     }
 
     @GetMapping("/historial")
-    public String historial(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
-        Integer idUsuario = getIdUsuario(session);
+    public String historial(Model model, RedirectAttributes redirectAttributes) {
+        Integer idUsuario = getIdUsuario();
         if (idUsuario == null) {
             redirectAttributes.addFlashAttribute("error",
                     messageSource.getMessage("usuario.login.requerido", null, Locale.getDefault()));
@@ -86,10 +88,10 @@ public class PedidoController {
     }
 
     @GetMapping("/detalle/{idPedido}")
-    public String detalle(@PathVariable Integer idPedido, HttpSession session,
+    public String detalle(@PathVariable Integer idPedido,
             Model model, RedirectAttributes redirectAttributes) {
 
-        Integer idUsuario = getIdUsuario(session);
+        Integer idUsuario = getIdUsuario();
         if (idUsuario == null) {
             redirectAttributes.addFlashAttribute("error",
                     messageSource.getMessage("usuario.login.requerido", null, Locale.getDefault()));
@@ -118,7 +120,7 @@ public class PedidoController {
         });
     }
 
-    private Integer getIdUsuario(HttpSession session) {
-        return SesionUtil.getIdUsuario(session);
+    private Integer getIdUsuario() {
+        return usuarioActual.getIdUsuario();
     }
 }

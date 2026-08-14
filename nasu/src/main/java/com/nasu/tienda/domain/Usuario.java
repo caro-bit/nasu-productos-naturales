@@ -3,6 +3,8 @@ package com.nasu.tienda.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.Data;
 
 @Data
@@ -55,4 +57,12 @@ public class Usuario implements Serializable {
     private String rutaImagen;
 
     private Boolean activo;
+
+    //Relación muchos a muchos con los roles, a través de la tabla usuario_rol.
+    //La usa el servicio de autenticación para armar los permisos de la sesión.
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "usuario_rol",
+            joinColumns = @JoinColumn(name = "id_usuario"),
+            inverseJoinColumns = @JoinColumn(name = "id_rol"))
+    private Set<Rol> roles = new HashSet<>();
 }
