@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head}"/>
+    <body>
+        <header th:replace="~{general/fragmentos :: header}"/>
+
+        <section th:replace="~{reporte/fragmentos :: menu('panel')}"/>
+
+        <!-- HU-22: panel con las estadísticas de ventas e inventario del negocio -->
+        <section class="container pt-4">
+            <h2><i class="fa-solid fa-gauge text-nasu"></i> [[#{reporte.panel.titulo}]]</h2>
+            <p class="text-muted">[[#{reporte.panel.texto}]]</p>
+
+            <div class="row row-cols-2 row-cols-lg-4 g-3 mb-4">
+                <div th:replace="~{reporte/fragmentos :: indicador('fa-sack-dollar', #{reporte.panel.ventasMes}, ${#numbers.formatCurrency(resumenMes.monto)})}"/>
+                <div th:replace="~{reporte/fragmentos :: indicador('fa-file-invoice-dollar', #{reporte.panel.facturasMes}, ${resumenMes.facturas})}"/>
+                <div th:replace="~{reporte/fragmentos :: indicador('fa-warehouse', #{reporte.panel.valorInventario}, ${#numbers.formatCurrency(valorInventario)})}"/>
+                <div th:replace="~{reporte/fragmentos :: indicador('fa-triangle-exclamation', #{reporte.inventario.enAlerta}, ${totalAlertas})}"/>
+            </div>
+
+            <div class="row g-4">
+                <!-- Evolución de las ventas de los últimos tres meses -->
+                <div class="col-12 col-xl-7">
+                    <div class="card h-100">
+                        <div class="card-header bg-nasu text-white">
+                            <h5 class="mb-0">[[#{reporte.panel.evolucion}]]</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="graficoVentas" height="150" th:if="${!etiquetasDias.empty}"></canvas>
+                            <div th:if="${etiquetasDias.empty}">
+                                <div th:replace="~{reporte/fragmentos :: sinDatos(#{reporte.periodo.sinVentas})}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Productos que más ingresos han generado -->
+                <div class="col-12 col-xl-5">
+                    <div class="card h-100">
+                        <div class="card-header bg-nasu text-white">
+                            <h5 class="mb-0">[[#{reporte.panel.masVendidos}]]</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="graficoProductos" height="200" th:if="${!etiquetasProductos.empty}"></canvas>
+                            <div th:if="${etiquetasProductos.empty}">
+                                <div th:replace="~{reporte/fragmentos :: sinDatos(#{reporte.periodo.sinVentas})}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Atajo a lo que hay que reponer, sin salir del panel -->
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-nasu text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">[[#{reporte.panel.porReponer}]]</h5>
+                            <a th:href="@{/reporte/inventario}" class="btn btn-sm btn-light">
+                                [[#{reporte.panel.verTodo}]] <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="card-body p-0 table-responsive">
+                            <table th:if="${!alertas.empty}" class="table table-striped align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>[[#{producto.descripcion}]]</th>
+                                        <th class="text-center">[[#{producto.existencias}]]</th>
+                                        <th class="text-center">[[#{reporte.inventario.estado}]]</th>
+                                        <th class="text-end">[[#{producto.precio}]]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="p, i : ${alertas}" th:if="${i.index < 5}">
+                                        <td>[[${p.descripcion}]]</td>
+                                        <td class="text-center fw-bold">[[${p.existencias}]]</td>
+                                        <td class="text-center">
+                                            <span th:if="${p.existencias == 0}" class="badge text-bg-danger">[[#{producto.agotado}]]</span>
+                                            <span th:unless="${p.existencias == 0}" class="badge text-bg-warning">[[#{reporte.inventario.bajo}]]</span>
+                                        </td>
+                                        <td class="text-end">[[${#numbers.formatCurrency(p.precio)}]]</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div th:if="${alertas.empty}">
+                                <div th:replace="~{reporte/fragmentos :: sinDatos(#{reporte.inventario.sinAlertas})}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-muted small mt-3">
+                <i class="fa-solid fa-circle-info"></i> [[#{reporte.panel.nota}]]
+            </p>
+        </section>
+
+        <!-- Chart.js: librería investigada por el equipo, servida como WebJar -->
+        <script th:src="@{/webjars/chartjs/dist/chart.umd.js}"></script>
+        <script th:inline="javascript">
+            const etiquetasDias = /*[[${etiquetasDias}]]*/ [];
+            const montosDias = /*[[${montosDias}]]*/ [];
+            const etiquetasProductos = /*[[${etiquetasProductos}]]*/ [];
+            const montosProductos = /*[[${montosProductos}]]*/ [];
+
+            const verde = '#4e6b54';
+            const verdeClaro = 'rgba(78, 107, 84, 0.15)';
+            const colones = valor => '₡' + valor.toLocaleString('es-CR');
+
+            if (etiquetasDias.length > 0) {
+                new Chart(document.getElementById('graficoVentas'), {
+                    type: 'line',
+                    data: {
+                        labels: etiquetasDias,
+                        datasets: [{
+                            label: 'Ventas',
+                            data: montosDias,
+                            borderColor: verde,
+                            backgroundColor: verdeClaro,
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {legend: {display: false}},
+                        scales: {y: {beginAtZero: true, ticks: {callback: colones}}}
+                    }
+                });
+            }
+
+            if (etiquetasProductos.length > 0) {
+                new Chart(document.getElementById('graficoProductos'), {
+                    type: 'bar',
+                    data: {
+                        labels: etiquetasProductos,
+                        datasets: [{
+                            label: 'Vendido',
+                            data: montosProductos,
+                            backgroundColor: verde
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        plugins: {legend: {display: false}},
+                        scales: {x: {beginAtZero: true, ticks: {callback: colones}}}
+                    }
+                });
+            }
+        </script>
+
+        <section th:replace="~{general/fragmentos :: mostrarToast}"/>
+        <footer th:replace="~{general/fragmentos :: footer}"/>
+    </body>
+</html>

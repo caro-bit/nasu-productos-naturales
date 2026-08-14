@@ -35,7 +35,20 @@ para las historias priorizadas como Debe tener.
 - Spring Boot (Web, Thymeleaf, Data JPA, Validation, DevTools)
 - Hibernate/JPA con MySQL
 - Bootstrap 5 y Font Awesome (WebJars)
+- **Chart.js** (WebJar) — librería investigada por el equipo, no vista en clase;
+  se usa en el panel de estadísticas (HU-22)
 - Maven
+
+## Pruebas
+
+`nasu/src/test/java/com/nasu/tienda/PantallasAdminTests.java` comprueba con
+MockMvc que las seis pantallas de administración se dibujan sin errores y que
+un visitante o un cliente sin rol `ADMIN` no puede entrar. Requieren la base
+`nasu` creada:
+
+```bash
+mvnw.cmd test
+```
 
 ## Estructura del proyecto
 
@@ -95,12 +108,17 @@ Historias de usuario implementadas y funcionales:
 - ✅ **HU-11** — Consultar el historial de pedidos para dar seguimiento a compras anteriores
 - ✅ **HU-12** — Administrador, registra nuevos productos para mantener actualizado el catálogo.
 - ✅ **HU-13** — Administrador, edita productos para actualizar precios, imágenes o descripciones.
-- ✅ **HU-14** — Administrador, desactiva productos para evitar su venta cuando ya no estén disponibles.(PARCIAL)
+- ✅ **HU-14** — Administrador, desactiva productos para evitar su venta cuando ya no estén disponibles.
 - ✅ **HU-15** — Administrador, registra la cantidad disponible de cada producto para controlar el inventario.
+- ✅ **HU-16** — El inventario disminuye automáticamente al confirmar una compra.
 - ✅ **HU-17** — Administrador, visualiza los productos con bajo inventario para reabastecerlos oportunamente.
 - ✅ **HU-18** — Administrador, consulta las ventas realizadas para analizar el desempeño del negocio.
 - ✅ **HU-19** — Administrador, genera reportes de ventas por período para apoyar la toma de decisiones.
+- ✅ **HU-20** — Administrador, administra usuarios y sus permisos para controlar el acceso al sistema.
 - ✅ **HU-21** — Confirmación de compra para verificar que el pedido fue registrado
+- ✅ **HU-22** — Administrador, visualiza un panel con estadísticas de ventas e inventario.
+
+Las 22 historias del documento quedan implementadas.
 
 > HU-19 estaba clasificada como *No tendrá (v1)* en la priorización MoSCoW inicial;
 > se adelantó porque comparte las mismas consultas de la HU-18.
@@ -113,7 +131,9 @@ sesión, el sistema carga los roles del usuario y habilita el menú
 
 | Pantalla | Ruta | Historia |
 |---|---|---|
+| Panel del negocio | `/reporte/panel` | HU-22 |
 | Listado de productos | `/producto/listadoAdminTemp` | HU-12 a HU-15 |
+| Usuarios y permisos | `/usuario/listado` | HU-20 |
 | Inventario bajo | `/reporte/inventario` | HU-17 |
 | Ventas realizadas | `/reporte/ventas` | HU-18 |
 | Reporte por período | `/reporte/periodo` | HU-19 |

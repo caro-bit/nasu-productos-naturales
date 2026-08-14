@@ -1,9 +1,14 @@
 package com.nasu.tienda.service;
 
+import com.nasu.tienda.domain.Rol;
 import com.nasu.tienda.domain.Usuario;
+import com.nasu.tienda.dto.UsuarioRoles;
+import com.nasu.tienda.repository.RolRepository;
 import com.nasu.tienda.repository.UsuarioRepository;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,11 +19,21 @@ public class UsuarioService {
     //Nombre del rol administrador dentro de la tabla rol
     public static final String ROL_ADMIN = "ADMIN";
 
+    //Claves de mensaje que se devuelven cuando una acción de la HU-20 no procede
+    public static final String ERROR_USUARIO = "usuario.error.noExiste";
+    public static final String ERROR_ROL = "usuario.error.rolNoExiste";
+    public static final String ERROR_AUTO_DESACTIVAR = "usuario.error.autoDesactivar";
+    public static final String ERROR_AUTO_QUITAR_ADMIN = "usuario.error.autoQuitarAdmin";
+    public static final String ERROR_ULTIMO_ADMIN = "usuario.error.ultimoAdmin";
+
     private final UsuarioRepository usuarioRepository;
+    private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+    public UsuarioService(UsuarioRepository usuarioRepository, RolRepository rolRepository,
+            PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.rolRepository = rolRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -75,5 +90,81 @@ public class UsuarioService {
     @Transactional(readOnly = true)
     public boolean esAdministrador(Integer idUsuario) {
         return getRoles(idUsuario).contains(ROL_ADMIN);
+    }
+
+    // --- HU-20: administración de usuarios y permisos ---
+
+    @Transactional(readOnly = true)
+    public List<Usuario> getUsuarios() {
+        return usuarioRepository.findAllByOrderByUsernameAsc();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Rol> getRolesDisponibles() {
+        return rolRepository.findAllByOrderByRolAsc();
+    }
+
+    //Roles de todos los usuarios, indexados por id para usarlos en el listado
+    @Transactional(readOnly = true)
+    public Map<Integer, String> getRolesPorUsuario() {
+        return usuarioRepository.findResumenRoles().stream()
+                .collect(Collectors.toMap(UsuarioRoles::getIdUsuario,
+                        r -> r.getRoles() != null ? r.getRoles() : ""));
+    }
+
+    @Transactional
+    public void cambiarEstado(Integer idUsuario, Integer idAdmin) {
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new IllegalArgumentException(ERROR_USUARIO));
+
+        boolean activar = !Boolean.TRUE.equals(usuario.getActivo());
+        if (!activar) {
+            //Al desactivar hay que cuidar que el administrador no se bloquee a sí mismo
+            if (idUsuario.equals(idAdmin)) {
+                throw new IllegalStateException(ERROR_AUTO_DESACTIVAR);
+            }
+            if (esUltimoAdministrador(idUsuario)) {
+                throw new IllegalStateException(ERROR_ULTIMO_ADMIN);
+            }
+        }
+        usuarioRepository.actualizarEstado(idUsuario, activar);
+    }
+
+    @Transactional
+    public void asignarRol(Integer idUsuario, Integer idRol) {
+        if (!usuarioRepository.existsById(idUsuario)) {
+            throw new IllegalArgumentException(ERROR_USUARIO);
+        }
+        if (!rolRepository.existsById(idRol)) {
+            throw new IllegalArgumentException(ERROR_ROL);
+        }
+        //La tabla usuario_rol tiene llave primaria compuesta: no se puede repetir
+        if (usuarioRepository.contarAsignacion(idUsuario, idRol) == 0) {
+            usuarioRepository.asignarRol(idUsuario, idRol);
+        }
+    }
+
+    @Transactional
+    public void quitarRol(Integer idUsuario, Integer idRol, Integer idAdmin) {
+        Rol rol = rolRepository.findById(idRol)
+                .orElseThrow(() -> new IllegalArgumentException(ERROR_ROL));
+
+        if (ROL_ADMIN.equals(rol.getRol())) {
+            if (idUsuario.equals(idAdmin)) {
+                throw new IllegalStateException(ERROR_AUTO_QUITAR_ADMIN);
+            }
+            if (esUltimoAdministrador(idUsuario)) {
+                throw new IllegalStateException(ERROR_ULTIMO_ADMIN);
+            }
+        }
+        usuarioRepository.quitarRol(idUsuario, idRol);
+    }
+
+    //El sistema siempre debe quedar con al menos un administrador activo
+    private boolean esUltimoAdministrador(Integer idUsuario) {
+        if (!esAdministrador(idUsuario)) {
+            return false;
+        }
+        return usuarioRepository.contarUsuariosActivosConRol(ROL_ADMIN) <= 1;
     }
 }

@@ -81,6 +81,82 @@ La misma validación se aplicó a las pantallas de mantenimiento del catálogo
 - `controller/ReporteController.java`
 - `templates/reporte/periodo.html`
 
+## HU-14 Desactivar productos
+**Historia:** Como administrador, deseo desactivar productos para evitar su venta cuando ya no estén disponibles.
+
+**Flujo implementado:**
+1. En el listado de administración cada producto tiene un botón que alterna
+   entre activo e inactivo.
+2. `ProductoService.cambiarEstado()` invierte el valor de `activo` y guarda.
+3. Un producto inactivo desaparece del catálogo, del buscador, del filtro por
+   categoría y del reporte de inventario bajo, pero conserva su historial de
+   ventas, cosa que no pasaría si se borrara.
+4. El borrado definitivo sigue disponible aparte, para productos cargados por
+   error que todavía no tienen movimientos.
+
+**Archivos principales:**
+- `service/ProductoService.java` (`cambiarEstado`)
+- `controller/ProductoController.java` (`/producto/estado`)
+- `templates/producto/listadoAdminTemp.html`
+
+## HU-20 Administrar usuarios y permisos
+**Historia:** Como administrador, deseo administrar usuarios y sus permisos para controlar el acceso al sistema.
+
+**Flujo implementado:**
+1. El administrador entra a `/usuario/listado` y ve todas las cuentas con su
+   estado y los roles que tienen asignados.
+2. Los roles se traen en una sola consulta con `GROUP_CONCAT`, para no consultar
+   la tabla `usuario_rol` una vez por usuario.
+3. Desde la misma fila se puede asignar o quitar cualquiera de los roles de la
+   tabla `rol`, y activar o desactivar la cuenta.
+4. Tres reglas protegen al sistema de quedar sin administración:
+   - nadie puede desactivar su propia cuenta;
+   - nadie puede quitarse a sí mismo el rol `ADMIN`;
+   - siempre debe quedar al menos un administrador activo.
+5. El estado se cambia con un `UPDATE` y no con `save()`, porque la entidad
+   `Usuario` valida `confirmarPassword`, un campo que solo existe en el registro.
+
+**Archivos principales:**
+- `domain/Rol.java`, `repository/RolRepository.java`, `dto/UsuarioRoles.java`
+- `repository/UsuarioRepository.java`, `service/UsuarioService.java`
+- `controller/UsuarioAdminController.java`
+- `templates/usuario/listadoAdmin.html`
+
+## HU-22 Panel de estadísticas
+**Historia:** Como administrador, deseo visualizar un panel con estadísticas de ventas e inventario para monitorear el negocio.
+
+**Flujo implementado:**
+1. El administrador entra a `/reporte/panel`, que es la primera pantalla del
+   menú de administración.
+2. Cuatro indicadores resumen el estado del negocio: ventas del mes, facturas
+   del mes, valor del inventario y productos en alerta.
+3. El valor del inventario se calcula con una **consulta JPQL** de agregación
+   (`SUM(p.precio * p.existencias)`), distinta de las consultas nativas de los
+   otros reportes.
+4. Dos gráficos hechos con **Chart.js**: la evolución de las ventas de los
+   últimos tres meses y los cinco productos que más ingresos han generado.
+5. Abajo, un atajo con los cinco productos más urgentes por reponer, que enlaza
+   al reporte completo de la HU-17.
+
+**Archivos principales:**
+- `controller/ReporteController.java` (`/reporte/panel`)
+- `service/ReporteService.java` (`getTopProductos`), `service/ProductoService.java` (`getValorInventario`)
+- `repository/ProductoRepository.java` (`calcularValorInventario`, consulta JPQL)
+- `templates/reporte/panel.html`
+
+## Tecnología investigada por el equipo
+**Chart.js 4.4.3**, servida como WebJar desde el propio proyecto. No se vio en
+clase y no depende de ningún CDN externo: el archivo viaja dentro del `.jar` de
+la aplicación. Se usa únicamente en el panel de la HU-22, que recibe las series
+ya calculadas desde el controlador mediante `th:inline="javascript"`.
+
+## Pruebas automatizadas
+`PantallasAdminTests` levanta el contexto de Spring y comprueba con MockMvc que
+las seis pantallas de administración se dibujan sin errores, que el panel
+incluye los gráficos y que un visitante o un cliente sin rol `ADMIN` es
+redirigido. La sesión de la prueba se arma directamente, sin pasar por el
+formulario de login.
+
 ## Cambios visuales
 Se reutilizó la paleta existente (`--nasu-verde`, `--nasu-crema`, `--nasu-arena`)
 y las clases `btn-nasu`, `bg-nasu` y `text-nasu`. Se agregó

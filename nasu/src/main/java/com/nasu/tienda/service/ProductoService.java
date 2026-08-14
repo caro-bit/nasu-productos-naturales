@@ -2,6 +2,7 @@ package com.nasu.tienda.service;
 
 import com.nasu.tienda.domain.Producto;
 import com.nasu.tienda.repository.ProductoRepository;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -46,9 +47,32 @@ public class ProductoService {
         return productoRepository.findByIdCategoriaAndActivoTrue(idCategoria);
     }
 
+    //HU-22: valor del inventario disponible, con una consulta JPQL de agregación
+    @Transactional(readOnly = true)
+    public BigDecimal getValorInventario() {
+        BigDecimal valor = productoRepository.calcularValorInventario();
+        return valor != null ? valor : BigDecimal.ZERO;
+    }
+
+    //HU-22: cantidad de productos publicados en el catálogo
+    @Transactional(readOnly = true)
+    public long contarActivos() {
+        return productoRepository.countByActivoTrue();
+    }
+
     @Transactional
     public void save(Producto producto) {
         productoRepository.save(producto);
+    }
+
+    //HU-14: desactivar un producto lo saca del catálogo sin borrar su historial
+    @Transactional
+    public boolean cambiarEstado(Integer idProducto) {
+        Producto producto = productoRepository.findById(idProducto)
+                .orElseThrow(() -> new IllegalArgumentException("El producto con ID " + idProducto + " no existe."));
+        producto.setActivo(!producto.isActivo());
+        productoRepository.save(producto);
+        return producto.isActivo();
     }
     @Transactional
     public void delete(Integer idProducto) {

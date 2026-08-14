@@ -154,6 +154,27 @@ public class ProductoController {
         return "redirect:/producto/listadoAdminTemp";
     }
 
+    // HU-14: saca el producto del catálogo (o lo devuelve) sin borrar su historial
+    @PostMapping("/estado")
+    public String cambiarEstado(@RequestParam Integer idProducto, HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        String redireccion = validarAdmin(session, redirectAttributes);
+        if (redireccion != null) {
+            return redireccion;
+        }
+
+        try {
+            boolean activo = productoService.cambiarEstado(idProducto);
+            redirectAttributes.addFlashAttribute("todoOk", messageSource.getMessage(
+                    activo ? "producto.activado" : "producto.desactivado", null, Locale.getDefault()));
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error",
+                    messageSource.getMessage("producto.error01", null, Locale.getDefault()));
+        }
+        return "redirect:/producto/listadoAdminTemp";
+    }
+
     @GetMapping("/editar/{idProducto}")
     public String editar(@PathVariable("idProducto") Integer idProducto, HttpSession session,
             Model model, RedirectAttributes redirectAttributes) {
