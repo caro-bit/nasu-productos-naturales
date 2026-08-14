@@ -42,18 +42,30 @@
                                     <td class="text-start" th:text="${categoriasMap.get(p.idCategoria)?.descripcion}"></td>
                                     <td>[[${#numbers.formatCurrency(p.precio)}]]</td>
                                     <td>[[${p.existencias}]]</td>
-                                    <td th:text="${p.activo} ? 'Activo' : 'Inactivo'"></td>
-                                    <td>[[${#numbers.formatCurrency(p.precio*p.existencias)}]]</td>
                                     <td>
+                                        <span th:if="${p.activo}" class="badge text-bg-success">[[#{usuario.activo}]]</span>
+                                        <span th:unless="${p.activo}" class="badge text-bg-secondary">[[#{usuario.inactivo}]]</span>
+                                    </td>
+                                    <td>[[${#numbers.formatCurrency(p.precio*p.existencias)}]]</td>
+                                    <td class="text-nowrap">
+                                        <!-- HU-14: desactivar evita la venta sin perder el historial del producto -->
+                                        <form method="post" th:action="@{/producto/estado}" class="d-inline">
+                                            <input type="hidden" name="idProducto" th:value="${p.idProducto}"/>
+                                            <button type="submit" class="btn btn-sm"
+                                                    th:classappend="${p.activo} ? 'btn-outline-danger' : 'btn-outline-success'"
+                                                    th:title="${p.activo} ? #{producto.desactivar} : #{producto.activar}">
+                                                <i class="fa-solid" th:classappend="${p.activo} ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                            </button>
+                                        </form>
+                                        <a th:href="@{/producto/editar/{id}(id=${p.idProducto})}" class="btn btn-sm btn-nasu">
+                                            <i class="fa-solid fa-pencil"></i>
+                                        </a>
                                         <button type="button" class="btn btn-sm btn-nasu"
                                                 data-bs-toggle="modal" data-bs-target="#confirmModal"
                                                 th:data-bs-id="${p.idProducto}"
                                                 th:data-bs-descripcion="${p.descripcion}">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
-                                        <a th:href="@{/producto/editar/{id}(id=${p.idProducto})}" class="btn btn-sm btn-nasu">
-                                            <i class="fa-solid fa-pencil"></i>
-                                        </a>
                                     </td>
                                 </tr>
                             </tbody>

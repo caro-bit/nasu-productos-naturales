@@ -368,6 +368,7 @@ INSERT INTO ruta (ruta, id_rol) VALUES
 ('/producto/listadoAdmin', 1),
 ('/producto/editar/**', 1),
 ('/producto/eliminar', 1),
+('/producto/estado', 1),
 ('/reporte/**', 1),
 ('/categoria/nuevo', 1),
 ('/categoria/guardar', 1),
@@ -384,7 +385,9 @@ INSERT INTO ruta (ruta, id_rol) VALUES
 ('/paypal/**', 3),
 ('/facturar/carrito', 3),
 ('/perfil', 3),
-('/carrito/**', 3);
+('/carrito/**', 3),
+('/pedido/**', 3),
+('/direccion/**', 3);
 
 -- Inserción de rutas que no requieren rol
 -- (el catálogo público de las HU-01 a HU-04 debe ser accesible para visitantes)
@@ -399,6 +402,7 @@ INSERT INTO ruta (ruta,requiere_rol) VALUES
 ('/contacto',false),
 ('/errores/**',false),
 ('/login',false),
+('/acceso-denegado',false),
 ('/logout',false),
 ('/registro',false),
 ('/registro/**',false),

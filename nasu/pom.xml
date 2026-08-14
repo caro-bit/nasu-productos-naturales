@@ -55,6 +55,18 @@
             <artifactId>spring-boot-starter-thymeleaf-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- MockMvc y utilidades de seguridad, para probar que las pantallas
+             se dibujan y que las reglas de acceso se aplican -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- WebJars Dependencies -->
         <dependency>
@@ -80,6 +92,13 @@
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>webjars-locator-lite</artifactId>
+        </dependency>
+        <!-- Chart.js: librería investigada por el equipo, no vista en clase.
+             Se usa en el panel de estadísticas del administrador (HU-22). -->
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>chartjs</artifactId>
+            <version>4.4.3</version>
         </dependency>
         <dependency>
             <groupId>com.mysql</groupId>
