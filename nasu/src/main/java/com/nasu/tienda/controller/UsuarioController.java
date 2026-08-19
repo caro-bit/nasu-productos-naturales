@@ -7,13 +7,18 @@ import com.nasu.tienda.util.SesionUtil;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.util.Locale;
+import java.util.Optional;
 import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -27,47 +32,6 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
         this.pedidoService = pedidoService;
         this.messageSource = messageSource;
-    }
-
-    // HU-01: muestra el formulario para registrar clientes
-    @GetMapping("/registro")
-    public String registro(Model model) {
-        model.addAttribute("usuario", new Usuario());
-        return "/usuario/registro";
-    }
-
-    // HU-01: registra el cliente y lo deja listo para iniciar sesión
-    @PostMapping("/registro/guardar")
-    public String guardarRegistro(@Valid Usuario usuario, BindingResult errores,
-            RedirectAttributes redirectAttributes, Model model) {
-
-        if (usuario.getUsername() != null && !usuario.getUsername().isBlank()
-                && usuarioService.existeUsername(usuario.getUsername())) {
-            errores.rejectValue("username", "usuario.username.repetido",
-                    messageSource.getMessage("usuario.error.username", null, Locale.getDefault()));
-        }
-
-        if (usuario.getCorreo() != null && !usuario.getCorreo().isBlank()
-                && usuarioService.existeCorreo(usuario.getCorreo())) {
-            errores.rejectValue("correo", "usuario.correo.repetido",
-                    messageSource.getMessage("usuario.error.correo", null, Locale.getDefault()));
-        }
-
-        if (usuario.getPassword() != null && usuario.getConfirmarPassword() != null
-                && !usuario.getPassword().equals(usuario.getConfirmarPassword())) {
-            errores.rejectValue("confirmarPassword", "usuario.password.no.coincide",
-                    messageSource.getMessage("usuario.error.password", null, Locale.getDefault()));
-        }
-
-        if (errores.hasErrors()) {
-            model.addAttribute("usuario", usuario);
-            return "/usuario/registro";
-        }
-
-        usuarioService.registrarCliente(usuario);
-        redirectAttributes.addFlashAttribute("todoOk",
-                messageSource.getMessage("usuario.registro.ok", null, Locale.getDefault()));
-        return "redirect:/login";
     }
 
     // HU-02: muestra el formulario para iniciar sesión
@@ -113,6 +77,115 @@ public class UsuarioController {
         model.addAttribute("usuario", usuario);
         model.addAttribute("pedidos", pedidoService.getPedidosPorUsuario(usuario.getIdUsuario()));
         return "/usuario/perfil";
+    }
+    
+    
+    ///HU-20 administrar usuarios y sus permisos para controlar el acceso al sistema. 
+    @GetMapping("/usuario/listado")
+    public String inicio(Model model) {
+        var usuarios = usuarioService.getUsuarios(false);
+        model.addAttribute("usuarios", usuarios);
+        model.addAttribute("totalUsuarios", usuarios.size());
+        model.addAttribute("usuario", new Usuario()); // necesario para que los fragmentos "agregar"/"editar" no fallen al parsear
+        return "/usuario/listado";
+    }
+     @PostMapping("/usuario/guardar")
+    public String guardar(@Valid Usuario usuario,
+            BindingResult bindingResult,
+            @RequestParam MultipartFile imagenFile,
+            RedirectAttributes redirectAttributes) {
+
+        // La contraseña solo es obligatoria al CREAR un usuario nuevo.
+        // Al editar, el campo puede llegar vacío (significa "no cambiar la contraseña").
+        if (usuario.getIdUsuario() == null
+                && (usuario.getPassword() == null || usuario.getPassword().isBlank())) {
+            bindingResult.rejectValue("password", "usuario.password.obligatoria",
+                    "La contraseña es obligatoria para nuevos usuarios.");
+        }
+
+        // Si SÍ viene una contraseña (nueva o al crear), valida el largo mínimo.
+        if (usuario.getPassword() != null && !usuario.getPassword().isBlank()
+                && usuario.getPassword().length() < 6) {
+            bindingResult.rejectValue("password", "usuario.password.corta",
+                    "La contraseña debe tener al menos 6 caracteres.");
+        }
+
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().forEach(e -> System.out.println(e.getDefaultMessage()));
+            // Redirige al formulario de edición/creación para mostrar errores
+            redirectAttributes.addFlashAttribute("error",
+                    messageSource.getMessage("usuario.error04", null, Locale.getDefault()));
+            // Si no hay idUsuario, redirige al listado con modal para agregar
+            if (usuario.getIdUsuario() == null) {
+                return "redirect:/usuario/listado";
+            }
+            // Si hay idUsuario, redirige al formulario de modificación
+            return "redirect:/usuario/modificar/" + usuario.getIdUsuario();
+        }
+
+        try {
+            usuarioService.save(usuario, imagenFile, true);
+            redirectAttributes.addFlashAttribute("todoOk",
+                    messageSource.getMessage("mensaje.actualizado", null, Locale.getDefault()));
+        } catch (DataIntegrityViolationException e) {
+            // Correo duplicado u otra violación de integridad
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            if (usuario.getIdUsuario() == null) {
+                return "redirect:/usuario/listado";
+            }
+            return "redirect:/usuario/modificar/" + usuario.getIdUsuario();
+        } catch (IllegalArgumentException e) {
+            // Contraseña obligatoria, usuario no encontrado, etc.
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            if (usuario.getIdUsuario() == null) {
+                return "redirect:/usuario/listado";
+            }
+            return "redirect:/usuario/modificar/" + usuario.getIdUsuario();
+        }
+
+        return "redirect:/usuario/listado";
+    }
+
+    @PostMapping("/usuario/eliminar")
+    public String eliminar(@RequestParam Integer idUsuario,
+            RedirectAttributes redirectAttributes) {
+        try {
+            usuarioService.delete(idUsuario);
+            redirectAttributes.addFlashAttribute("todoOk",
+                    messageSource.getMessage("mensaje.eliminado", null,
+                            Locale.getDefault()));
+        } catch (IllegalArgumentException e) {
+            // Captura argumento inválido para el mensaje de "no existe"
+            redirectAttributes.addFlashAttribute("error",
+                    messageSource.getMessage("usuario.error01", null,
+                            Locale.getDefault()));
+        } catch (IllegalStateException e) {
+            // Captura estado ilegal para el mensaje de "datos asociados"
+            redirectAttributes.addFlashAttribute("error",
+                    messageSource.getMessage("usuario.error02", null,
+                            Locale.getDefault()));
+        } catch (NoSuchMessageException e) {
+            // Captura cualquier otra excepción inesperada
+            redirectAttributes.addFlashAttribute("error",
+                    messageSource.getMessage("usuario.error03", null,
+                            Locale.getDefault()));
+        }
+        return "redirect:/usuario/listado";
+    }
+
+    @GetMapping("/usuario/modificar/{idUsuario}")
+    public String modificar(@PathVariable("idUsuario") Integer idUsuario,
+            Model model, RedirectAttributes redirectAttributes) {
+        Optional<Usuario> usuarioOpt = usuarioService.getUsuario(idUsuario);
+        if (usuarioOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error",
+                    "El usuario no fue encontrado.");
+            return "redirect:/usuario/listado";
+        }
+        Usuario usuario = usuarioOpt.get();
+        usuario.setPassword("");
+        model.addAttribute("usuario", usuario);
+        return "/usuario/modifica";
     }
 
     @GetMapping("/logout")

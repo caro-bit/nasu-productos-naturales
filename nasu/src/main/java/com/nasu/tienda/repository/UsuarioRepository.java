@@ -12,12 +12,20 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
-    public Optional<Usuario> findByUsername(String username);
+    public Optional<Usuario> findByUsernameAndActivoTrue(String username);
 
     public boolean existsByUsername(String username);
 
     public boolean existsByCorreo(String correo);
+    
+    public List<Usuario> findByActivoTrue(); 
+    
+    public Optional<Usuario> findByUsername(String username);
 
+    public Optional<Usuario> findByUsernameAndPassword(String username, String password);
+
+    public Optional<Usuario> findByUsernameOrCorreo(String username, String correo);
+    
     @Query(value = "SELECT id_rol FROM rol WHERE rol = :rol LIMIT 1", nativeQuery = true)
     public Optional<Integer> findIdRolByNombre(@Param("rol") String rol);
 

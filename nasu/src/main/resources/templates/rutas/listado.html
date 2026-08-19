@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+ 
+<html>
+    <head th:replace="~{general/fragmentos :: head}"/>
+
+    <body>
+        <header th:replace="~{general/fragmentos :: header}"/>
+
+        <section th:replace="~{rutas/fragmentos :: agregar}"/>
+        <section th:replace="~{rutas/fragmentos :: listado}"/>
+        <section th:replace="~{rutas/fragmentos :: confirmarEliminar}"/>
+
+        <section th:replace="~{general/fragmentos :: mostrarToast}"/>
+
+        <footer th:replace="~{general/fragmentos :: footer}"/>
+    </body>
+</html>

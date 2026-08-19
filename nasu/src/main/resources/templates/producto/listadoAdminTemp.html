@@ -4,10 +4,15 @@
     <head th:replace="~{general/fragmentos :: head}"/>
     <body>
         <header th:replace="~{general/fragmentos :: header}"/>
-
+        <section th:replace="~{reporte/fragmentos :: menu('catalogo')}"/>
+        
         <section class="container pt-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
+<<<<<<< Updated upstream:nasu/src/main/resources/templates/producto/listadoAdminTemp.html
                 <h2>[[#{producto.listado}]] (ListadoAdminTemp)</h2>
+=======
+                <h2> <i class='fa-solid fa-boxes-stacked text-nasu'></i> [[#{producto.listado}]]</h2>
+>>>>>>> Stashed changes:nasu/src/main/resources/templates/producto/listadoAdmin.html
                 <button type="button" class="btn btn-nasu" data-bs-toggle="modal" data-bs-target="#agregarProductoModal">
                     <i class="fa-solid fa-plus"></i> [[#{producto.agregar}]]
                 </button>
@@ -106,7 +111,7 @@
                             </div>
                             <div class="mb-3">
                                 <label>[[#{producto.imagen}]]</label>
-                                <input type="text" class="form-control" th:field="*{rutaImagen}" placeholder="/img/mi-producto.jpg"/>
+                                <input type="text" class="form-control" th:field="*{rutaImagen}" placeholder="/img/producto-default.svg"/>
                             </div>
                             <div class="mb-3 form-check">
                                 <input type="checkbox" class="form-check-input" th:field="*{activo}" id="activoCheckAgregar"/>
@@ -130,7 +135,7 @@
                 <div class="modal-content">
                     <form th:action="@{/producto/eliminar}" method="post">
                         <input type="hidden" name="idProducto" id="modalId"/>
-                        <div class="modal-header bg-warning text-white">
+                        <div class="modal-header bg-nasu text-white">
                             <h5 class="modal-title"><i class="fa-solid fa-circle-radiation"></i> [[#{accion.confirmar}]]</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                         </div>

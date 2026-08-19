@@ -24,6 +24,7 @@
                 <ul class="navbar-nav">
                     <li class="nav-item px-2"><a class="nav-link" th:href="@{/}">[[#{plantilla.inicio}]]</a></li>
                     <li class="nav-item px-2"><a class="nav-link" th:href="@{/producto/listado}">[[#{plantilla.catalogo}]]</a></li>
+<<<<<<< Updated upstream
                     <!-- Menú de administración: solo se muestra a quien tiene el rol ADMIN -->
                     <li class="nav-item dropdown px-2" th:if="${session.esAdmin}">
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
@@ -36,11 +37,12 @@
                             <li><a class="dropdown-item" th:href="@{/reporte/periodo}">[[#{reporte.periodo.titulo}]]</a></li>
                         </ul>
                     </li>
+=======
+>>>>>>> Stashed changes
                     <li class="nav-item px-2"><a class="nav-link" th:href="@{/nosotros}">[[#{plantilla.nosotros}]]</a></li>
                     <li class="nav-item px-2"><a class="nav-link" th:href="@{/contacto}">[[#{plantilla.contacto}]]</a></li>
-                    <li class="nav-item px-2"><a class="nav-link" th:href="@{/carrito/listado}">
-                            <i class="fa-solid fa-cart-shopping"></i> [[#{plantilla.carrito}]]</a></li>
                 </ul>
+
                 <!-- Formulario de búsqueda de productos por nombre (HU-03) -->
                 <form class="d-flex my-2" method="post" th:action="@{/producto/buscar}" role="search">
                     <div class="input-group">
@@ -50,7 +52,11 @@
                             <i class="fa-solid fa-magnifying-glass"></i></button>
                     </div>
                 </form>
+
+                <!-- OPCIONES RELACIONADAS DIRECTAMENTE AL USUARIO/HEADER) -->
+                <!-- Menú de administración: solo se muestra a quien tiene el rol ADMIN -->
                 <ul class="navbar-nav">
+<<<<<<< Updated upstream
                     <li class="nav-item dropdown" th:if="${session.usuario != null}">
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
                             <i class="fa-solid fa-user"></i> [[${session.usuario.nombre}]]</a>
@@ -70,6 +76,69 @@
                             <li><a class="dropdown-item" th:href="@{/(lang=en)}">English</a></li>
                         </ul>
                     </li>
+=======
+                <li class="nav-item dropdown px-2" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
+                        <i class="fa-solid fa-gear text-nasu"></i> [[#{plantilla.administracion}]]</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" th:href="@{/producto/listadoAdmin}">[[#{plantilla.productos}]]</a></li>
+                        <li><hr class="dropdown-divider"/></li>
+                        <li class="submenu submenu-md dropend">
+                            <a class="dropdown-item dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                               onclick="event.stopPropagation();">
+                                [[#{plantilla.reportes}]]
+                            </a>
+                            <ul class="dropdown-menu">                                            
+                                <li><a class="dropdown-item" th:href="@{/reporte/inventario}">[[#{reporte.inventario.titulo}]]</a></li>
+                                <li><a class="dropdown-item" th:href="@{/reporte/ventas}">[[#{reporte.ventas.titulo}]]</a></li>
+                                <li><a class="dropdown-item" th:href="@{/reporte/periodo}">[[#{reporte.periodo.titulo}]]</a></li>
+                            </ul>
+                        </li>
+                        <li><hr class="dropdown-divider"/></li>
+                        <li><a class="dropdown-item" th:href="@{/usuario/listado}">[[#{plantilla.usuarios}]]</a></li>
+                        <li><hr class="dropdown-divider"/></li>
+                        <li class="submenu submenu-md dropend">
+                            <a class="dropdown-item dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                               onclick="event.stopPropagation();">
+                                [[#{plantilla.seguridad}]]
+                            </a>
+                            <ul class="dropdown-menu">                                            
+                                <li><a class="dropdown-item" th:href="@{/usuario_rol/listado}">[[#{plantilla.troles}]]</a></li>
+                                <li><a class="dropdown-item" th:href="@{/usuario_rol/mantenimiento}">[[#{plantilla.permisos}]]</a></li>
+                                <li><a class="dropdown-item" th:href="@{/rutas/listado}">[[#{plantilla.rutas}]]</a></li>
+                            </ul>  
+                        </li> 
+                    </ul>
+                </li>
+                
+                <li class="nav-item px-2"><a class="nav-link" th:href="@{/carrito/listado}">
+                        <i class="fa-solid fa-cart-shopping text-nasu"></i> [[#{plantilla.carrito}]]</a></li> 
+
+
+                <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
+                        <i class="fa-solid fa-user text-nasu"></i> [[${session.usuario.nombre}]]</a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" th:href="@{/perfil}">[[#{usuario.miCuenta}]]</a></li>
+                        <li>
+                            <form method="post" th:action="@{/logout}">
+                                <button class="dropdown-item" type="submit">[[#{usuario.cerrarSesion}]]</button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/login}">[[#{usuario.iniciarSesion}]]</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
+                        [[#{plantilla.idioma}]]</a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" th:href="@{/(lang=es)}">Español</a></li>
+                        <li><a class="dropdown-item" th:href="@{/(lang=en)}">English</a></li>
+                    </ul>
+                </li>
+>>>>>>> Stashed changes
                 </ul>
             </div>
         </div>

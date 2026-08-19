@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
+<<<<<<< Updated upstream:nasu/src/main/resources/templates/usuario/registro.html
       xmlns:th="http://www.thymeleaf.org">
+=======
+      xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+>>>>>>> Stashed changes:nasu/src/main/resources/templates/registro/registro.html
     <head th:replace="~{general/fragmentos :: head}"/>
     <body>
         <header th:replace="~{general/fragmentos :: header}"/>
@@ -45,12 +50,12 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">[[#{usuario.password}]]</label>
-                                        <input type="password" th:field="*{password}" class="form-control" required/>
+                                        <input type="password" th:field="*{password}" class="form-control"/>
                                         <small class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">[[#{usuario.confirmarPassword}]]</label>
-                                        <input type="password" th:field="*{confirmarPassword}" class="form-control" required/>
+                                        <input type="password" th:field="*{confirmarPassword}" class="form-control"/>
                                         <small class="text-danger" th:if="${#fields.hasErrors('confirmarPassword')}" th:errors="*{confirmarPassword}"></small>
                                     </div>
                                 </div>

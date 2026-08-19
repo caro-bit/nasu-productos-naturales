@@ -25,6 +25,7 @@ public class Pedido implements Serializable {
     private Integer idDireccion;
 
     private String estado;
+    
     private BigDecimal total;
 
     @Column(name = "id_descuento")

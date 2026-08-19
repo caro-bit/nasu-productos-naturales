@@ -3,6 +3,8 @@ package com.nasu.tienda.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.Data;
 
 @Data
@@ -23,12 +25,9 @@ public class Usuario implements Serializable {
     private String username;
 
     @Column(nullable = false, length = 512)
-    @NotBlank(message = "La contraseña no puede estar vacía.")
-    @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres.")
     private String password;
 
     @Transient
-    @NotBlank(message = "Debe confirmar la contraseña.")
     private String confirmarPassword;
 
     @Column(nullable = false, length = 20)
@@ -55,4 +54,13 @@ public class Usuario implements Serializable {
     private String rutaImagen;
 
     private Boolean activo;
+    
+    // Relación Many-to-Many con la entidad Rol
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "usuario_rol",
+            joinColumns = @JoinColumn(name = "id_usuario"),
+            inverseJoinColumns = @JoinColumn(name = "id_rol")
+    )
+    private Set<Rol> roles= new HashSet<>();
 }

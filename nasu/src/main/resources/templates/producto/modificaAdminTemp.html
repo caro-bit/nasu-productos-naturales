@@ -4,7 +4,7 @@
     <head th:replace="~{general/fragmentos :: head}"/>
     <body>
         <header th:replace="~{general/fragmentos :: header}"/>
-
+        <section th:replace="~{reporte/fragmentos :: menu('inventario')}"/>
         <section class="container pt-4">
             <form method="post" th:action="@{/producto/guardar}" th:object="${producto}" class="was-validated">
                 <input type="hidden" th:field="*{idProducto}"/>
@@ -49,7 +49,7 @@
                         </div>
                         <div class="mb-3">
                             <label>[[#{producto.imagen}]]</label>
-                            <input type="text" class="form-control" th:field="*{rutaImagen}" placeholder="/img/mi-producto.jpg"/>
+                            <input type="text" class="form-control" th:field="*{rutaImagen}" placeholder="/img/producto-default.svg"/>
                         </div>
                         <div class="mb-3 form-check">
                             <input type="checkbox" class="form-check-input" th:field="*{activo}" id="activoCheckEditar"/>

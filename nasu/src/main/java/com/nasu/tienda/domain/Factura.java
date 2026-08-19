@@ -30,6 +30,7 @@ public class Factura implements Serializable {
     private BigDecimal total;
 
     private String estado;
+    
 
     @Column(name = "referencia_transaccion", length = 45)
     private String referenciaTransaccion;
