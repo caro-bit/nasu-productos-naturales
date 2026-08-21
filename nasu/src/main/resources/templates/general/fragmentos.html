@@ -24,6 +24,22 @@
                 <ul class="navbar-nav">
                     <li class="nav-item px-2"><a class="nav-link" th:href="@{/}">[[#{plantilla.inicio}]]</a></li>
                     <li class="nav-item px-2"><a class="nav-link" th:href="@{/producto/listado}">[[#{plantilla.catalogo}]]</a></li>
+                    
+                    <li class="nav-item px-2"><a class="nav-link" th:href="@{/nosotros}">[[#{plantilla.nosotros}]]</a></li>
+                    <li class="nav-item px-2"><a class="nav-link" th:href="@{/contacto}">[[#{plantilla.contacto}]]</a></li>
+                    
+                </ul>
+                <!-- Formulario de búsqueda de productos por nombre (HU-03) -->
+                <form class="d-flex my-2" method="post" th:action="@{/producto/buscar}" role="search">
+                    <div class="input-group">
+                        <input type="search" name="descripcion" class="form-control"
+                               th:placeholder="#{producto.buscar}" th:value="${busquedaActual}" required/>
+                        <button class="btn btn-nasu" type="submit">
+                            <i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>
+                </form>
+                
+                <ul class="navbar-nav">
                     <!-- Menú de administración: solo se muestra a quien tiene el rol ADMIN -->
                     <li class="nav-item dropdown px-2" sec:authorize="hasRole('ADMIN')">
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
@@ -39,21 +55,11 @@
                             <li><a class="dropdown-item" th:href="@{/reporte/periodo}">[[#{reporte.periodo.titulo}]]</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item px-2"><a class="nav-link" th:href="@{/nosotros}">[[#{plantilla.nosotros}]]</a></li>
-                    <li class="nav-item px-2"><a class="nav-link" th:href="@{/contacto}">[[#{plantilla.contacto}]]</a></li>
+                    
+                    <!-- CARRITO -->
                     <li class="nav-item px-2"><a class="nav-link" th:href="@{/carrito/listado}">
                             <i class="fa-solid fa-cart-shopping"></i> [[#{plantilla.carrito}]]</a></li>
-                </ul>
-                <!-- Formulario de búsqueda de productos por nombre (HU-03) -->
-                <form class="d-flex my-2" method="post" th:action="@{/producto/buscar}" role="search">
-                    <div class="input-group">
-                        <input type="search" name="descripcion" class="form-control"
-                               th:placeholder="#{producto.buscar}" th:value="${busquedaActual}" required/>
-                        <button class="btn btn-nasu" type="submit">
-                            <i class="fa-solid fa-magnifying-glass"></i></button>
-                    </div>
-                </form>
-                <ul class="navbar-nav">
+                     <!-- OPCIONES LOGIN-INFO USUARIO YA LOGGUEADO -->
                     <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
                             <i class="fa-solid fa-user"></i> [[${session.usuario.nombre}]]</a>
@@ -101,7 +107,7 @@
              aria-live="assertive"
              aria-atomic="true"
              data-bs-autohide="true">
-            <div class="toast-header text-white bg-danger">
+            <div class="toast-header text-white bg-nasu">
                 <i class="fa-solid fa-bomb"></i> <strong class="me-auto"> [[#{error}]]</strong>
             </div>
             <div class="toast-body">
@@ -117,7 +123,7 @@
              aria-live="polite"
              aria-atomic="true"
              data-bs-autohide="true">
-            <div class="toast-header text-white bg-success">
+            <div class="toast-header text-white bg-nasu">
                 <i class="fa-solid fa-square-check"></i> <strong class="me-auto"> [[#{atencion}]]</strong>
             </div>
             <div class="toast-body">

@@ -5,7 +5,7 @@
     --nasu-verde-oscuro: #3a5240;
     --nasu-crema: #faf7f0;
     --nasu-arena: #ede5d3;
-    --nasu-terracota: #c47a54;
+    --nasu-verde-claro: #198754 ;
 }
 
 body {
@@ -16,6 +16,11 @@ body {
 .navbar-nasu {
     background-color: #fffdf8;
     border-bottom: 1px solid var(--nasu-arena);
+}
+
+.dropdown-item:active {
+    background-color: var(--nasu-verde);
+    color: #fff !important;
 }
 
 .navbar-nasu .navbar-brand {
@@ -46,6 +51,17 @@ body {
 .btn-nasu:hover {
     background-color: var(--nasu-verde-oscuro);
     color: #fff;
+}
+
+/* Para el uso de menu activo en reporte */
+.nav-pills {
+    --bs-nav-pills-link-active-bg: var(--nasu-verde);
+    --bs-nav-pills-link-active-color: #ffffff;
+    --bs-nav-link-hover-color: var(--nasu-verde-claro);
+}
+
+.text-nasu:hover {
+    color: var(--nasu-verde-claro);
 }
 
 /* Tarjetas de producto y categoría */
